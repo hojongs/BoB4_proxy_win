@@ -86,7 +86,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	udphdr*udpptr;
 	char*data;
 
-	printf("captured");
+	printf("captured\n");//4 in 2 out
 	if (ethptr->ether_type == htons(ETH_P_IP))
 	{
 		ipptr = (iphdr*)(ptr + sizeof(ethhdr));
@@ -97,6 +97,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		return;
 	}
 
+	printf("ICMP : %d %d\n", ipptr->proto, PROTO_ICMP);
 	switch (ipptr->proto)
 	{
 	case PROTO_TCP:
@@ -122,6 +123,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//todo
 	//filtering
 
+	printf("saddr : %d %d\n", ipptr->saddr, inet_addr(AP_IP));
 	if (ipptr->saddr == inet_addr(AP_IP))
 	{ //request packet
 		u_char* temp = (u_char*)ethptr->ether_shost;
