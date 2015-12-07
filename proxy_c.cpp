@@ -86,6 +86,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	udphdr*udpptr;
 	char*data;
 
+	printf("captured");
 	if (ethptr->ether_type == htons(ETH_P_IP))
 	{
 		ipptr = (iphdr*)(ptr + sizeof(ethhdr));
