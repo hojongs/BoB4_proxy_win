@@ -97,7 +97,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		return;
 	}
 
-	printf("PROTO : %d\n", ipptr->proto);
+	//printf("PROTO : %d\n", ipptr->proto);
 	switch (ipptr->proto)
 	{
 	case PROTO_TCP:
@@ -120,7 +120,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//todo
 	//filtering
 
-	printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
+	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
 	if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
 		u_char* temp = (u_char*)ethptr->ether_shost;
@@ -133,23 +133,28 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//}
 		printf("\n");
 		u_char src_mac_array[6] = MIDDLE_MAC;
-		printf("mac after  : ");
+		printf("src mac : ");
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
 			*temp = src_mac_array[i]; //src change
 			temp++;
-			//printf("%02x", temp[i]);
-			//if (i<ETHER_ADDR_LEN - 1)
-			//	printf(":");
+			printf("%02x", temp[i]);
+			if (i<ETHER_ADDR_LEN - 1)
+				printf(":");
 		}
+		printf("\n");
+		printf("dst mac : ");
 		u_char dst_mac_array[6] = RES_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
 			*temp = dst_mac_array[i]; //dst change
 			temp++;
+			printf("%02x", temp[i]);
+			if (i<ETHER_ADDR_LEN - 1)
+				printf(":");
 		}
-		
 		printf("\n");
+		
 
 		printf("0x%08x\n", ipptr->saddr);
 		ipptr->saddr = inet_addr(MIDDLE_IP);
