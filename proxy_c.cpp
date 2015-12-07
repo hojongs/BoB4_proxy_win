@@ -96,7 +96,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		return;
 	}
 
-	printf("ICMP : %d %d\n", ipptr->proto, PROTO_ICMP);
+	printf("PROTO : %d %d\n", ipptr->proto);
 	switch (ipptr->proto)
 	{
 	case PROTO_TCP:
@@ -108,6 +108,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		data = ptr + sizeof(ethhdr) + ipptr->ver * 4 + udpptr->len;
 		break;
 	case PROTO_ICMP:
+		printf("len : %d bytes\n", header->len);
 		data = ptr + sizeof(ethhdr) + ipptr->ver * 4 + ICMPHDR_LEN;
 		break;
 	default:
@@ -115,14 +116,10 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		printf("type : 0x%x\n", ipptr->proto);
 	}
 
-	if (ipptr->proto == PROTO_ICMP)
-		printf("len : %d bytes\n", header->len);
-
-
 	//todo
 	//filtering
 
-	printf("saddr : %d %d\n", ipptr->saddr, inet_addr(AP_IP));
+	printf("saddr : %u %u\n", ipptr->saddr, inet_addr(AP_IP));
 	if (ipptr->saddr == inet_addr(AP_IP))
 	{ //request packet
 		u_char* temp = (u_char*)ethptr->ether_shost;
