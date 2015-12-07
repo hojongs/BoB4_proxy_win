@@ -186,15 +186,15 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		
 		ipptr->saddr = inet_addr(MID_OUT_IP);
 		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
-	}
 
-	//return; //stop
+		//return; //stop
 
-	/* Send down the packet */
-	if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
-	{
-		fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
-		return;
+		/* Send down the packet */
+		if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
+		{
+			fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
+			return;
+		}
 	}
 }
 
@@ -242,45 +242,48 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	}
 
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
-	u_char* temp;
-
-	temp = ethptr->ether_shost;//check
-	u_char src_mac_array[6] = MID_IN_MAC;
-	for (int i = 0; i<ETHER_ADDR_LEN; i++)
-		temp[i] = src_mac_array[i]; //src change
-
-	temp = ethptr->ether_dhost;
-	u_char dst_mac_array[6] = REQ_MAC;
-	for (int i = 0; i<ETHER_ADDR_LEN; i++)
-		temp[i] = dst_mac_array[i]; //dst change
-
-	//printf("src mac : ");
-	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-	//	printf("%02x:", src_mac_array[i]);
-	//printf("\n");
-	//printf("src pkt : ");
-	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-	//	printf("%02x:", ethptr->ether_shost[i]);
-	//printf("\n");
-	//printf("dst mac : ");
-	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-	//	printf("%02x:", dst_mac_array[i]);
-	//printf("\n");
-	//printf("dst pkt : ");
-	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-	//	printf("%02x:", ethptr->ether_dhost[i]);
-	//printf("\n");
-
-	ipptr->daddr = inet_addr(REQ_IP);
-	ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
-
-	//return; //stop
-
-	/* Send down the packet */
-	if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
+	if (ipptr->daddr == inet_addr(MID_OUT_IP))
 	{
-		fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(req_handle));
-		return;
+		u_char* temp;
+
+		temp = ethptr->ether_shost;//check
+		u_char src_mac_array[6] = MID_IN_MAC;
+		for (int i = 0; i<ETHER_ADDR_LEN; i++)
+			temp[i] = src_mac_array[i]; //src change
+
+		temp = ethptr->ether_dhost;
+		u_char dst_mac_array[6] = REQ_MAC;
+		for (int i = 0; i<ETHER_ADDR_LEN; i++)
+			temp[i] = dst_mac_array[i]; //dst change
+
+		//printf("src mac : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", src_mac_array[i]);
+		//printf("\n");
+		//printf("src pkt : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", ethptr->ether_shost[i]);
+		//printf("\n");
+		//printf("dst mac : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", dst_mac_array[i]);
+		//printf("\n");
+		//printf("dst pkt : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", ethptr->ether_dhost[i]);
+		//printf("\n");
+
+		ipptr->daddr = inet_addr(REQ_IP);
+		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+
+		//return; //stop
+
+		/* Send down the packet */
+		if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
+		{
+			fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(req_handle));
+			return;
+		}
 	}
 }
 
