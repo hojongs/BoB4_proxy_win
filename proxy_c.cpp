@@ -147,7 +147,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		printf("0x%08x\n", ipptr->saddr);
 	}
 
-	return; //stop
+	//return; //stop
 
 	/* Send down the packet */
 	if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
