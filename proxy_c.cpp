@@ -88,7 +88,7 @@ u_short checksum(unsigned short *   data, int length)
 		if (nleft != 10)
 			sum += *w++;
 		else
-			printf("%x\n", *w++);
+			*w++;
 		nleft -= 2;
 	}
 
@@ -115,6 +115,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	tcphdr*tcpptr;
 	udphdr*udpptr;
 	char*data;
+
+
 
 	if (ethptr->ether_type == htons(ETH_P_IP))
 	{
@@ -182,8 +184,9 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 		
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-		ipptr->crc = checksum((u_short*)ipptr, 20);
-		printf("ihl : %d\n", ipptr->ihl * 4);
+		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl*4);
+		printf("ihl : %d\n", ipptr->ihl);
+		printf("ver : %d\n", ipptr->ver);
 	}
 
 	//return; //stop
