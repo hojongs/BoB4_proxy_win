@@ -152,25 +152,26 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 			temp[i] = dst_mac_array[i]; //dst change
 
-		printf("src mac : ");
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			printf("%02x:", src_mac_array[i]);
-		printf("\n");
-		printf("src pkt : ");
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			printf("%02x:", ethptr->ether_shost[i]);
-		printf("\n");
-		printf("dst mac : ");
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			printf("%02x:", dst_mac_array[i]);
-		printf("\n");
-		printf("dst pkt : ");
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			printf("%02x:", ethptr->ether_dhost[i]);
-		printf("\n");
+		//printf("src mac : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", src_mac_array[i]);
+		//printf("\n");
+		//printf("src pkt : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", ethptr->ether_shost[i]);
+		//printf("\n");
+		//printf("dst mac : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", dst_mac_array[i]);
+		//printf("\n");
+		//printf("dst pkt : ");
+		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+		//	printf("%02x:", ethptr->ether_dhost[i]);
+		//printf("\n");
 		
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-		ipptr->crc = calcsum((u_short*)ipptr, sizeof(iphdr));
+		ipptr->crc = calcsum((u_short*)ipptr, ipptr->ihl*4);
+		printf("checksum : %d %d\n", ipptr->crc, calcsum((u_short*)ipptr, ipptr->ihl * 4));
 	}
 
 	//return; //stop
