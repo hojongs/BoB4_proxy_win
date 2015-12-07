@@ -4,10 +4,11 @@
 #define PROTO_UDP 17
 #define PROTO_ICMP 1
 #define ICMPHDR_LEN 8
-#define MIDDLE_MAC {0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70} //(SRC)AP_IP/MAC -> MIDDLE_IP/MAC
+#define RES_MAC { 0x2c, 0x21, 0x72, 0x93, 0xdf, 0x00 }
+#define MIDDLE_MAC { 0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70 } //(SRC)REQ_IP/MAC -> MIDDLE_IP/MAC
 #define MIDDLE_IP "192.168.32.231" //ME
-#define AP_MAC {0x00, 0x27, 0x1c, 0xcd, 0xdd, 0x04}									//(DST)MIDDLE_IP/MAC -> AP_IP/MAC
-#define AP_IP "192.168.137.84" //BOB_MIL
+#define REQ_MAC {0x00, 0x27, 0x1c, 0xcd, 0xdd, 0x04}									//(DST)MIDDLE_IP/MAC -> REQ_IP/MAC
+#define REQ_IP "192.168.137.84" //BOB_MIL
 
 #define	ETHER_ADDR_LEN		6
 #define ETH_P_IP 0x0800
@@ -119,27 +120,35 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//todo
 	//filtering
 
-	printf("saddr : %u %u\n", ipptr->saddr, inet_addr(AP_IP));
-	if (ipptr->saddr == inet_addr(AP_IP))
+	printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
+	if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
 		u_char* temp = (u_char*)ethptr->ether_shost;
-		printf("mac before : ");
-		for (int i = 0; i<ETHER_ADDR_LEN; i++)
-		{
-			printf("%02x", temp[i]);
-			if (i<ETHER_ADDR_LEN - 1)
-				printf(":");
-		}
+		//printf("mac before : ");
+		//for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		//{
+		//	printf("%02x", temp[i]);
+		//	if (i<ETHER_ADDR_LEN - 1)
+		//		printf(":");
+		//}
 		printf("\n");
-		u_char mac_array[6] = MIDDLE_MAC;
+		u_char src_mac_array[6] = MIDDLE_MAC;
 		printf("mac after  : ");
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
-			temp[i] = mac_array[i];
-			printf("%02x", temp[i]);
-			if (i<ETHER_ADDR_LEN - 1)
-				printf(":");
+			*temp = src_mac_array[i]; //src change
+			temp++;
+			//printf("%02x", temp[i]);
+			//if (i<ETHER_ADDR_LEN - 1)
+			//	printf(":");
 		}
+		u_char dst_mac_array[6] = RES_MAC;
+		for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		{
+			*temp = dst_mac_array[i]; //dst change
+			temp++;
+		}
+		
 		printf("\n");
 
 		printf("0x%08x\n", ipptr->saddr);
