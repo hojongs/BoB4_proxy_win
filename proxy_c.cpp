@@ -76,6 +76,23 @@ typedef struct {
 	uint16_t urgent_p;
 } tcp_header_t, tcphdr;
 
+unsigned short calcsum(unsigned short *buffer, int length)
+{
+	unsigned long sum;
+
+	// initialize sum to zero and loop until length (in words) is 0 
+	for (sum = 0; length>1; length -= 2) // sizeof() returns number of bytes, we're interested in number of words 
+		sum += *buffer++;	// add 1 word of buffer to sum and proceed to the next 
+
+	// we may have an extra byte 
+	if (length == 1)
+		sum += (char)*buffer;
+
+	sum = (sum >> 16) + (sum & 0xFFFF);  // add high 16 to low 16 
+	sum += (sum >> 16);		     // add carry 
+	return ~sum;
+}
+
 void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
 	pcap_t* res_handle = (pcap_t*)args;
@@ -152,10 +169,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			printf("%02x:", ethptr->ether_dhost[i]);
 		printf("\n");
 		
-
-//		printf("0x%08x\n", ipptr->saddr);
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-//		printf("0x%08x\n", ipptr->saddr);
+		ipptr->crc = calcsum((u_short*)ipptr, sizeof(iphdr));
 	}
 
 	//return; //stop
