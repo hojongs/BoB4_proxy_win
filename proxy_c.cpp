@@ -76,21 +76,33 @@ typedef struct {
 	uint16_t urgent_p;
 } tcp_header_t, tcphdr;
 
-unsigned short calcsum(unsigned short *buffer, int length)
+int checksum(unsigned short *   data, int length)
 {
-	unsigned long sum;
+	register int                nleft = length;
+	register unsigned short     *   w = data;
+	register int                sum = 0;
+	unsigned short              answer = 0;
 
-	// initialize sum to zero and loop until length (in words) is 0 
-	for (sum = 0; length>1; length -= 2) // sizeof() returns number of bytes, we're interested in number of words 
-		sum += *buffer++;	// add 1 word of buffer to sum and proceed to the next 
+	while (nleft > 1)
+	{
+		if (nleft != 10)
+			sum += *w++;
+		else
+			printf("%x\n", *w++);
+		nleft -= 2;
+	}
 
-	// we may have an extra byte 
-	if (length == 1)
-		sum += (char)*buffer;
+	if (nleft == 1)
+	{
+		*(unsigned char *)(&answer) = *(unsigned char *)w;
+		sum += answer;
+	}
 
-	sum = (sum >> 16) + (sum & 0xFFFF);  // add high 16 to low 16 
-	sum += (sum >> 16);		     // add carry 
-	return ~sum;
+	sum = (sum >> 16) + (sum & 0xffff);
+	sum += (sum >> 16);
+	answer = ~sum;
+
+	return answer;
 }
 
 void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
@@ -170,8 +182,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 		
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-		ipptr->crc = calcsum((u_short*)ipptr, ipptr->ihl*4);
-		printf("checksum : %d %d\n", ipptr->crc, calcsum((u_short*)ipptr, ipptr->ihl * 4));
+		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl*4);
 	}
 
 	//return; //stop
