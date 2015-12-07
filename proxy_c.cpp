@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "stdafx.h" //3,4
 
 #define PROTO_TCP 6
 #define PROTO_UDP 17
