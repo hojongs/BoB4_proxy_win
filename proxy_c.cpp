@@ -140,8 +140,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		u_char src_mac_array[6] = MIDDLE_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
-			*temp = src_mac_array[i]; //src change
-			temp++;
+			temp[i] = src_mac_array[i]; //src change
 			if (ipptr->proto == PROTO_ICMP)
 			{
 				printf("%02x", temp[i]);
@@ -154,11 +153,11 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			printf("\n");
 			printf("dst mac : ");
 		}
+		temp += 6;
 		u_char dst_mac_array[6] = RES_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
-			*temp = dst_mac_array[i]; //dst change
-			temp++;
+			temp[i] = dst_mac_array[i]; //dst change
 			if (ipptr->proto == PROTO_ICMP)
 			{
 				printf("%02x", temp[i]);
