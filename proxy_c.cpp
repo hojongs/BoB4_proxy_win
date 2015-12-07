@@ -109,7 +109,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		data = ptr + sizeof(ethhdr) + ipptr->ver * 4 + udpptr->len;
 		break;
 	case PROTO_ICMP:
-		printf("len : %d bytes\n", header->len);
+//		printf("len : %d bytes\n", header->len);
 		data = ptr + sizeof(ethhdr) + ipptr->ver * 4 + ICMPHDR_LEN;
 		break;
 	default:
@@ -131,34 +131,47 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//	if (i<ETHER_ADDR_LEN - 1)
 		//		printf(":");
 		//}
-		printf("\n");
+
+		if (ipptr->proto == PROTO_ICMP)
+		{
+			printf("\n");
+			printf("src mac : ");
+		}
 		u_char src_mac_array[6] = MIDDLE_MAC;
-		printf("src mac : ");
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
 			*temp = src_mac_array[i]; //src change
 			temp++;
-			printf("%02x", temp[i]);
-			if (i<ETHER_ADDR_LEN - 1)
-				printf(":");
+			if (ipptr->proto == PROTO_ICMP)
+			{
+				printf("%02x", temp[i]);
+				if (i<ETHER_ADDR_LEN - 1)
+					printf(":");
+			}
 		}
-		printf("\n");
-		printf("dst mac : ");
+		if (ipptr->proto == PROTO_ICMP)
+		{
+			printf("\n");
+			printf("dst mac : ");
+		}
 		u_char dst_mac_array[6] = RES_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 		{
 			*temp = dst_mac_array[i]; //dst change
 			temp++;
-			printf("%02x", temp[i]);
-			if (i<ETHER_ADDR_LEN - 1)
-				printf(":");
+			if (ipptr->proto == PROTO_ICMP)
+			{
+				printf("%02x", temp[i]);
+				if (i<ETHER_ADDR_LEN - 1)
+					printf(":");
+			}
 		}
-		printf("\n");
+//		printf("\n");
 		
 
-		printf("0x%08x\n", ipptr->saddr);
+//		printf("0x%08x\n", ipptr->saddr);
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-		printf("0x%08x\n", ipptr->saddr);
+//		printf("0x%08x\n", ipptr->saddr);
 	}
 
 	//return; //stop
