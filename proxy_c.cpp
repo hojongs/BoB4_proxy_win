@@ -284,14 +284,13 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	}
 }
 
-void* caller_thread(void *args)
+//Thread Routine
+DWORD CallerThread(LPVOID lpdwThreadParam)
 { //res_handling func caller
-	struct handlezip* hdzip = (struct handlezip*)args;
+	struct handlezip* hdzip = (struct handlezip*)lpdwThreadParam;
 	pcap_loop(hdzip->res_handle, -1, res_handling, (u_char*)hdzip->req_handle);
-
-	return NULL;
+	return 0;
 }
-
 
 int main(int argc, char **argv)
 {
@@ -308,9 +307,6 @@ int main(int argc, char **argv)
 
 	char *devname, devs[100][100];
 	int count = 1, n;
-
-//	pthread_t thread;
-	int iret;
 
 	/* Retrieve the device list on the local machine */
 	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
@@ -405,8 +401,20 @@ int main(int argc, char **argv)
 	hdzip.req_handle = req_handle;
 	hdzip.res_handle = res_handle;
 
-	//if (iret = pthread_create(&thread, NULL, caller_thread, (void*)&hdzip))
-	//	perror("pthread_create");
+	DWORD dwThreadId;
+
+	if (CreateThread(NULL, //Choose default security
+		0, //Default stack size
+		(LPTHREAD_START_ROUTINE)&CallerThread,
+		//Routine to execute
+		(LPVOID)&hdzip, //Thread parameter
+		0, //Immediately run the thread
+		&dwThreadId //Thread Id
+		) == NULL)
+	{
+		printf("Error Creating Thread\n");
+		return(1);
+	}
 
 	pcap_loop(req_handle, -1, req_handling, (u_char*)res_handle);
 
