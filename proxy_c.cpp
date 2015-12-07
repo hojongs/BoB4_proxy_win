@@ -39,8 +39,8 @@ typedef struct ip_address{
 
 /* IPv4 header */
 typedef struct ip_header{
-	u_char  ver : 4;        // ver (4 bits) + Internet header length (4 bits)
 	u_char  ihl : 4;
+	u_char  ver : 4;        // ver (4 bits) + Internet header length (4 bits)
 	u_char  tos;            // Type of service 
 	u_short tlen;           // Total length 
 	u_short identification; // Identification
