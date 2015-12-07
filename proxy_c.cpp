@@ -76,7 +76,7 @@ typedef struct {
 	uint16_t urgent_p;
 } tcp_header_t, tcphdr;
 
-int checksum(unsigned short *   data, int length)
+u_short checksum(unsigned short *   data, int length)
 {
 	register int                nleft = length;
 	register unsigned short     *   w = data;
@@ -182,7 +182,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 		
 		ipptr->saddr = inet_addr(MIDDLE_IP);
-		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl*4);
+		ipptr->crc = checksum((u_short*)ipptr, 20);
+		printf("ihl : %d\n", ipptr->ihl * 4);
 	}
 
 	//return; //stop
