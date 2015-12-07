@@ -123,19 +123,14 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
 	if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
-		u_char* temp = (u_char*)ethptr->ether_shost;
-		//printf("mac before : ");
-		//for (int i = 0; i<ETHER_ADDR_LEN; i++)
-		//{
-		//	printf("%02x", temp[i]);
-		//	if (i<ETHER_ADDR_LEN - 1)
-		//		printf(":");
-		//}
+		u_char* temp;
 
+		temp = ethptr->ether_shost;
 		u_char src_mac_array[6] = MIDDLE_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 			temp[i] = src_mac_array[i]; //src change
-		temp += 6;
+
+		temp = ethptr->ether_dhost;
 		u_char dst_mac_array[6] = RES_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 			temp[i] = dst_mac_array[i]; //dst change
@@ -152,7 +147,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		for (int i = 0; i < ETHER_ADDR_LEN; i++)
 			printf("%02x:", dst_mac_array[i]);
 		printf("\n");
-		printf("src pkt : ");
+		printf("dst pkt : ");
 		for (int i = 0; i < ETHER_ADDR_LEN; i++)
 			printf("%02x:", ethptr->ether_dhost[i]);
 		printf("\n");
