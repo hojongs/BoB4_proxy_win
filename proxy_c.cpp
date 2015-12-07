@@ -131,7 +131,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//	if (i<ETHER_ADDR_LEN - 1)
 		//		printf(":");
 		//}
-
+		//
 		if (ipptr->proto == PROTO_ICMP)
 		{
 			printf("\n");
