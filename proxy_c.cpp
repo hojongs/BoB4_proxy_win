@@ -5,9 +5,10 @@
 #define PROTO_ICMP 1
 #define ICMPHDR_LEN 8
 #define RES_MAC { 0x2c, 0x21, 0x72, 0x93, 0xdf, 0x00 }
-#define MIDDLE_MAC { 0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70 } //(SRC)REQ_IP/MAC -> MIDDLE_IP/MAC
-#define MIDDLE_IP "192.168.32.231" //ME
-#define REQ_MAC {0x00, 0x27, 0x1c, 0xcd, 0xdd, 0x04}									//(DST)MIDDLE_IP/MAC -> REQ_IP/MAC
+#define MID_IN_MAC { 0xfc, 0xaa, 0x14, 0x96, 0x8b, 0x54 }
+#define MID_OUT_MAC { 0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70 } //(SRC)REQ_IP/MAC -> MID_OUT_IP/MAC
+#define MID_OUT_IP "192.168.32.231" //ME
+#define REQ_MAC {0x00, 0x27, 0x1c, 0xcd, 0xdd, 0x04}									//(DST)MID_OUT_IP/MAC -> REQ_IP/MAC
 #define REQ_IP "192.168.137.84" //BOB_MIL
 
 #define	ETHER_ADDR_LEN		6
@@ -157,7 +158,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		u_char* temp;
 
 		temp = ethptr->ether_shost;
-		u_char src_mac_array[6] = MIDDLE_MAC;
+		u_char src_mac_array[6] = MID_OUT_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 			temp[i] = src_mac_array[i]; //src change
 
@@ -183,10 +184,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//	printf("%02x:", ethptr->ether_dhost[i]);
 		//printf("\n");
 		
-		ipptr->saddr = inet_addr(MIDDLE_IP);
-		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl*4);
-		printf("ihl : %d\n", ipptr->ihl);
-		printf("ver : %d\n", ipptr->ver);
+		ipptr->saddr = inet_addr(MID_OUT_IP);
+		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 	}
 
 	//return; //stop
@@ -199,7 +198,91 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	}
 }
 
-void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer){};
+void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
+{
+	pcap_t* req_handle = (pcap_t*)args;
+
+	char*ptr = (char*)buffer;
+	ethhdr*ethptr = (ethhdr*)ptr;
+	iphdr*ipptr;
+	tcphdr*tcpptr;
+	udphdr*udpptr;
+	char*data;
+
+
+
+	if (ethptr->ether_type == htons(ETH_P_IP))
+	{
+		ipptr = (iphdr*)(ptr + sizeof(ethhdr));
+	}
+	else
+	{
+		//	printf("IPv6\n");
+		return;
+	}
+
+	//printf("PROTO : %d\n", ipptr->proto);
+	switch (ipptr->proto)
+	{
+	case PROTO_TCP:
+		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ver * 4);
+		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + tcpptr->data_offset * 4;
+		break;
+	case PROTO_UDP:
+		udpptr = (udphdr*)(ptr + sizeof(ethhdr)+ipptr->ver * 4);
+		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + udpptr->len;
+		break;
+	case PROTO_ICMP:
+		//		printf("len : %d bytes\n", header->len);
+		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + ICMPHDR_LEN;
+		break;
+	default:
+		printf("exception\n");
+		printf("type : 0x%x\n", ipptr->proto);
+	}
+
+	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
+	u_char* temp;
+
+	temp = ethptr->ether_shost;//check
+	u_char src_mac_array[6] = MID_IN_MAC;
+	for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		temp[i] = src_mac_array[i]; //src change
+
+	temp = ethptr->ether_dhost;
+	u_char dst_mac_array[6] = REQ_MAC;
+	for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		temp[i] = dst_mac_array[i]; //dst change
+
+	//printf("src mac : ");
+	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+	//	printf("%02x:", src_mac_array[i]);
+	//printf("\n");
+	//printf("src pkt : ");
+	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+	//	printf("%02x:", ethptr->ether_shost[i]);
+	//printf("\n");
+	//printf("dst mac : ");
+	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+	//	printf("%02x:", dst_mac_array[i]);
+	//printf("\n");
+	//printf("dst pkt : ");
+	//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+	//	printf("%02x:", ethptr->ether_dhost[i]);
+	//printf("\n");
+
+	ipptr->daddr = inet_addr(REQ_IP);
+	ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+
+	//return; //stop
+
+	/* Send down the packet */
+	if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
+	{
+		fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(req_handle));
+		return;
+	}
+}
 
 void* caller_thread(void *args)
 { //res_handling func caller
