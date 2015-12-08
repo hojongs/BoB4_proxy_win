@@ -203,7 +203,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			//printf("real csum : 0x%x\n", tcpptr->checksum);
 			tcpptr->checksum = 0;
 			memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
-			//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header) + htons(pshptr->tulen))));
+			//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+			tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
 		}
 		else
 		{
@@ -213,6 +214,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			udpptr->crc = 0;
 			memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
 			//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+			udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
 		}
 	}
 
@@ -328,6 +330,7 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			tcpptr->checksum = 0;
 			memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
 			//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header) + htons(pshptr->tulen))));
+			tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
 		}
 		else
 		{
@@ -337,6 +340,7 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			udpptr->crc = 0;
 			memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
 			//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+			udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
 		}
 	}
 
