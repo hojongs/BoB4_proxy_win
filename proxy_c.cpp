@@ -199,7 +199,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		if (ipptr->proto == PROTO_TCP)
 		{
 			//printf("*** tcp ***\n");
-			pshptr->tulen = ipptr->tlen - (ipptr->ihl * 4 * 0x100);
+			pshptr->tulen = (htons(ipptr->tlen) - (ipptr->ihl * 4))>>8 | (htons(ipptr->tlen) - (ipptr->ihl * 4))<<8;
 			//printf("real csum : 0x%x\n", tcpptr->checksum);
 			tcpptr->checksum = 0;
 			memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
@@ -249,8 +249,10 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 		
 		ipptr->saddr = inet_addr(MID_OUT_IP);
+		//printf("0x%x\n", ipptr->crc);
 		ipptr->crc = 0;
 		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+		//printf("0x%x\n", ipptr->crc);
 
 		//here
 
@@ -321,7 +323,7 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		if (ipptr->proto == PROTO_TCP)
 		{
 			//printf("*** tcp ***\n");
-			pshptr->tulen = ipptr->tlen - (ipptr->ihl * 4 * 0x100);
+			pshptr->tulen = (htons(ipptr->tlen) - (ipptr->ihl * 4)) >> 8 | (htons(ipptr->tlen) - (ipptr->ihl * 4)) << 8;
 			//printf("real csum : 0x%x\n", tcpptr->checksum);
 			tcpptr->checksum = 0;
 			memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
@@ -371,8 +373,10 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 
 		ipptr->daddr = inet_addr(REQ_IP);
+		//printf("0x%x\n", ipptr->crc);
 		ipptr->crc = 0;
 		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+		//printf("0x%x\n", ipptr->crc);
 
 		//here
 
