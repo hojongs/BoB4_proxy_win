@@ -188,7 +188,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//filtering
 
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
-	if (ipptr->saddr == inet_addr(REQ_IP))
+	//if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
 		u_char* temp;
 
@@ -239,22 +239,24 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			if (ipptr->proto == PROTO_TCP)
 			{
 				//printf("*** tcp ***\n");
-				pshptr->tulen = (htons(ipptr->tlen) - (ipptr->ihl * 4)) >> 8 | (htons(ipptr->tlen) - (ipptr->ihl * 4)) << 8;
-				//printf("real csum : 0x%x\n", tcpptr->checksum);
+				pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
 				tcpptr->checksum = 0;
 				memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
 				//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
-				tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+				//printf("calc csum : 0x%x\n", tcpptr->checksum);
 			}
 			else
 			{
 				//printf("*** udp ***\n");
 				pshptr->tulen = udpptr->len;
-				//printf("real csum : 0x%x\n", udpptr->crc);
 				udpptr->crc = 0;
 				memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
 				//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
-				udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+				//printf("calc csum : 0x%x\n", tcpptr->checksum);
 			}
 		}
 
@@ -362,22 +364,24 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			if (ipptr->proto == PROTO_TCP)
 			{
 				//printf("*** tcp ***\n");
-				pshptr->tulen = (htons(ipptr->tlen) - (ipptr->ihl * 4)) >> 8 | (htons(ipptr->tlen) - (ipptr->ihl * 4)) << 8;
-				//printf("real csum : 0x%x\n", tcpptr->checksum);
+				pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
 				tcpptr->checksum = 0;
 				memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
-				//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header) + htons(pshptr->tulen))));
-				tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+				//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+				//printf("calc csum : 0x%x\n", tcpptr->checksum);
 			}
 			else
 			{
 				//printf("*** udp ***\n");
 				pshptr->tulen = udpptr->len;
-				//printf("real csum : 0x%x\n", udpptr->crc);
 				udpptr->crc = 0;
 				memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
 				//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
-				udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+				udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+				//printf("calc csum : 0x%x\n", tcpptr->checksum);
 			}
 		}
 
