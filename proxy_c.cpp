@@ -290,28 +290,60 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	switch (ipptr->proto)
 	{
 	case PROTO_TCP:
-		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ver * 4);
-		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + tcpptr->data_offset * 4;
+		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
+		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
 		break;
 	case PROTO_UDP:
-		udpptr = (udphdr*)(ptr + sizeof(ethhdr)+ipptr->ver * 4);
-		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + udpptr->len;
+		udpptr = (udphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
+		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + udpptr->len;
 		break;
 	case PROTO_ICMP:
 		//		printf("len : %d bytes\n", header->len);
-		data = ptr + sizeof(ethhdr)+ipptr->ver * 4 + ICMPHDR_LEN;
+		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + ICMPHDR_LEN;
 		break;
 	default:
 		printf("exception\n");
 		printf("type : 0x%x\n", ipptr->proto);
 	}
 
-	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
-	if (ipptr->daddr == inet_addr(MID_OUT_IP))
+	//todo
+	//filtering
+
+	if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
 	{
+		//tcp checksum
+		char psh[65536];
+		pseudo_header*pshptr = (pseudo_header*)psh;
+		pshptr->saddr = ipptr->saddr;
+		pshptr->daddr = ipptr->daddr;
+		pshptr->reversed = 0;
+		pshptr->proto = ipptr->proto;
+		if (ipptr->proto == PROTO_TCP)
+		{
+			//printf("*** tcp ***\n");
+			pshptr->tulen = ipptr->tlen - (ipptr->ihl * 4 * 0x100);
+			//printf("real csum : 0x%x\n", tcpptr->checksum);
+			tcpptr->checksum = 0;
+			memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
+			//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header) + htons(pshptr->tulen))));
+		}
+		else
+		{
+			//printf("*** udp ***\n");
+			pshptr->tulen = udpptr->len;
+			//printf("real csum : 0x%x\n", udpptr->crc);
+			udpptr->crc = 0;
+			memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
+			//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+		}
+	}
+
+	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
+	if (ipptr->saddr == inet_addr(REQ_IP))
+	{ //request packet
 		u_char* temp;
 
-		temp = ethptr->ether_shost;//check
+		temp = ethptr->ether_shost;
 		u_char src_mac_array[6] = MID_IN_MAC;
 		for (int i = 0; i<ETHER_ADDR_LEN; i++)
 			temp[i] = src_mac_array[i]; //src change
@@ -339,12 +371,10 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//printf("\n");
 
 		ipptr->daddr = inet_addr(REQ_IP);
+		ipptr->crc = 0;
 		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 
-		//todo
-		//tcp checksum
-
-		//return; //stop
+		//here
 
 		/* Send down the packet */
 		if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
