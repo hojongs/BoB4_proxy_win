@@ -345,7 +345,7 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	}
 
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
-	//if (ipptr->saddr == inet_addr(REQ_IP)) //how-to?
+	if (ipptr->daddr == inet_addr(MID_OUT_IP))
 	{ //request packet
 		u_char* temp;
 
