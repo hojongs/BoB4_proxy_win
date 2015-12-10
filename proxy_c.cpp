@@ -8,12 +8,15 @@
 #define RES_MAC { 0x2c, 0x21, 0x72, 0x93, 0xdf, 0x00 }
 #define MID_IN_MAC { 0xfc, 0xaa, 0x14, 0x96, 0x8b, 0x54 }
 #define MID_OUT_MAC { 0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70 } //(SRC)REQ_IP/MAC -> MID_OUT_IP/MAC
-#define MID_OUT_IP "192.168.32.57" //ME
+//#define MID_OUT_IP "192.168.32.57" //ME
 #define REQ_MAC { 0x00, 0x26, 0x66, 0x89, 0xbe, 0x1d }									//(DST)MID_OUT_IP/MAC -> REQ_IP/MAC
-#define REQ_IP "192.168.31.2" //BOB_MIL
+//#define REQ_IP "192.168.31.2" //BOB_MIL
 
 #define	ETHER_ADDR_LEN		6
 #define ETH_P_IP 0x0800
+
+char MID_OUT_IP[24];
+char REQ_IP[24];
 
 /*
 * Structure of a 10Mb/s Ethernet header.
@@ -512,6 +515,11 @@ int main(int argc, char **argv)
 
 	/* At this point, we don't need any more the device list. Free it */
 	pcap_freealldevs(alldevs);
+
+	printf("MID_OUT_IP : ");
+	scanf_s("%s", MID_OUT_IP, 24);
+	printf("REQ_IP : ");
+	scanf_s("%s", REQ_IP, 24);
 
 	struct handlezip hdzip;
 	hdzip.req_handle = req_handle;
