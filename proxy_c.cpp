@@ -455,6 +455,9 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	printf("TIMEOUT : ");
+	scanf_s("%d", &TIMEOUT, sizeof(int));
+
 	printf("Enter the interface number (1-%d):", i);
 	scanf_s("%d", &inum, sizeof(inum));
 
@@ -524,8 +527,6 @@ int main(int argc, char **argv)
 	scanf_s("%s", MID_OUT_IP, 24);
 	printf("REQ_IP : ");
 	scanf_s("%s", REQ_IP, 24);
-	printf("TIMEOUT : ");
-	scanf_s("%d", &TIMEOUT, sizeof(int));
 
 	struct handlezip hdzip;
 	hdzip.req_handle = req_handle;
