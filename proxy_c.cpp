@@ -17,7 +17,7 @@
 
 char MID_OUT_IP[24];
 char REQ_IP[24];
-#define MID_IN_IP "192.168.31.160" //test
+//#define MID_IN_IP "192.168.31.160" //test
 
 /*
 * Structure of a 10Mb/s Ethernet header.
@@ -353,7 +353,7 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		//	printf("%02x:", ethptr->ether_dhost[i]);
 		//printf("\n");
 
-		ipptr->saddr = inet_addr(MID_IN_IP);//test
+		//ipptr->saddr = inet_addr(MID_IN_IP);//test
 		ipptr->daddr = inet_addr(REQ_IP);
 		//printf("0x%x\n", ipptr->crc);
 		ipptr->crc = 0;
