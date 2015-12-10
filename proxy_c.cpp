@@ -9,7 +9,7 @@
 #define MID_IN_MAC { 0xfc, 0xaa, 0x14, 0x96, 0x8b, 0x54 }
 #define MID_OUT_MAC { 0xd8, 0xfc, 0x93, 0x46, 0x58, 0x70 } //(SRC)REQ_IP/MAC -> MID_OUT_IP/MAC
 #define MID_OUT_IP "192.168.32.57" //ME
-#define REQ_MAC {0x00, 0x27, 0x1c, 0xcd, 0xdd, 0x04}									//(DST)MID_OUT_IP/MAC -> REQ_IP/MAC
+#define REQ_MAC { 0x00, 0x26, 0x66, 0x89, 0xbe, 0x1d }									//(DST)MID_OUT_IP/MAC -> REQ_IP/MAC
 #define REQ_IP "192.168.31.2" //BOB_MIL
 
 #define	ETHER_ADDR_LEN		6
