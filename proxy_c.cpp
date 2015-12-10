@@ -472,7 +472,7 @@ int main(int argc, char **argv)
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		1000,             // read timeout
+		1,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)
@@ -502,7 +502,7 @@ int main(int argc, char **argv)
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		1000,             // read timeout
+		1,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)
