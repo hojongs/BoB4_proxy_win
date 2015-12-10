@@ -11,6 +11,7 @@
 //#define MID_OUT_IP "192.168.32.57" //ME
 #define REQ_MAC { 0x00, 0x26, 0x66, 0x89, 0xbe, 0x1d }									//(DST)MID_OUT_IP/MAC -> REQ_IP/MAC
 //#define REQ_IP "192.168.31.2" //BOB_MIL
+#define TIMEOUT 100
 
 #define	ETHER_ADDR_LEN		6
 #define ETH_P_IP 0x0800
@@ -472,7 +473,7 @@ int main(int argc, char **argv)
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		1,             // read timeout
+		TIMEOUT,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)
@@ -502,7 +503,7 @@ int main(int argc, char **argv)
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		1,             // read timeout
+		TIMEOUT,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)
