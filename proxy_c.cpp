@@ -2,6 +2,7 @@
 
 #define PROTO_TCP 6
 #define PROTO_UDP 17
+#define PROTO_ARP 2
 #define PROTO_ICMP 1
 #define ICMPHDR_LEN 8
 #define RES_MAC { 0x2c, 0x21, 0x72, 0x93, 0xdf, 0x00 }
@@ -179,6 +180,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 //		printf("len : %d bytes\n", header->len);
 		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + ICMPHDR_LEN;
 		break;
+	case PROTO_ARP:
+		break;
 	default:
 		printf("exception\n");
 		printf("type : 0x%x\n", ipptr->proto);
@@ -188,7 +191,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//filtering
 
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
-	//if (ipptr->saddr == inet_addr(REQ_IP))
+	if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
 		u_char* temp;
 
@@ -306,6 +309,8 @@ void res_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	case PROTO_ICMP:
 		//		printf("len : %d bytes\n", header->len);
 		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + ICMPHDR_LEN;
+		break;
+	case PROTO_ARP:
 		break;
 	default:
 		printf("exception\n");
