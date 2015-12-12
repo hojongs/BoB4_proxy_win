@@ -509,7 +509,12 @@ int main(int argc, char **argv)
 	{
 		printf("mysql_init() error!");
 	}
-	connection = mysql_real_connect(&conn, "192.168.32.216", "test", "test", "bob", 3306, (const char*)NULL, 0);
+
+	char dbaddr[24];
+
+	//scanf_s("%s", dbaddr, sizeof(24));
+
+	connection = mysql_real_connect(&conn, "192.168.32.184", "test", "test", "bob", 3306, (const char*)NULL, 0);
 	if (connection == NULL)
 	{
 		printf("%d ¿¡·¯ : %s, %d\n", mysql_errno(&conn), mysql_error(&conn));
