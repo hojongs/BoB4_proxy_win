@@ -224,15 +224,16 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 								  }
 							  }
 							  sprintf(query, "select url from blacklist where url like '%s%%'", temparray);
+							  printf("%s\n", query);
 							  state = mysql_query(connection, query);
 							  if (state == 0)
 							  {
 								  sql_result = mysql_store_result(connection);
-								  printf("%s\n", query);
+								 //printf("%s\n", query);
 								  if (mysql_fetch_row(sql_result) != NULL)
 								  {
+									  printf("%s\n", query);
 									  chk_black = 1;
-
 								  }
 							  }
 						  }
@@ -347,6 +348,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		}
 		else
 		{
+
 			chk_black = 0;
 		}
 	}
