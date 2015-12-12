@@ -1,4 +1,7 @@
 #include "stdafx.h" //3,4
+#pragma comment(lib, "libmysql.lib")
+#include <WinSock2.h>
+#include <mysql.h>
 
 #define PROTO_TCP 6
 #define PROTO_UDP 17
@@ -19,6 +22,10 @@
 int TIMEOUT;
 char MID_OUT_IP[24];
 char REQ_IP[24];
+MYSQL *connection = NULL;
+MYSQL conn;
+MYSQL_RES *sql_result;
+MYSQL_ROW sql_row;
 //#define MID_IN_IP "192.168.31.160" //test
 
 /*
@@ -158,7 +165,10 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	tcphdr*tcpptr;
 	udphdr*udpptr;
 	char*data;
+	char url[65536]{ 0 };
+	int chk_black = 0;
 
+	int temp = 0;
 
 
 	if (ethptr->ether_type == htons(ETH_P_IP))
@@ -167,7 +177,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	}
 	else
 	{
-		//	printf("IPv6\n");
+		//   printf("IPv6\n");
 		return;
 	}
 
@@ -175,15 +185,72 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	switch (ipptr->proto)
 	{
 	case PROTO_TCP:
-		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr) + ipptr->ihl * 4);
-		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
+	{
+					  char *query = new char[200];
+					  char temparray[200] = { 0 };
+					  int state = 0;
+
+
+					  tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
+					  data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
+					  for (int i = 0; i < header->caplen; i++)
+					  {
+						  if (buffer[i] == 0x48 && buffer[i + 1] == 0x6f && buffer[i + 2] == 0x73 && buffer[i + 3] == 0x74 && buffer[i + 4] == 0x3a && buffer[i + 5] == 0x20)
+						  {
+							  for (int j = i + 6;; j++)
+							  {
+								  //temp = buffer[j];
+								  if (buffer[j] == 0x0d && buffer[j + 1] == 0x0a)
+								  {
+									  temp = 1;
+									  break;
+								  }
+								  url[j - (i + 6)] = ptr[j];
+							  }
+							  int tmp = 0, tmp2 = 0;
+							  while (url[tmp])
+							  {
+								  if (url[tmp] == 'w' && url[tmp + 1] == 'w' && url[tmp + 2] == 'w')
+								  {
+									  tmp = tmp + 4;
+									  continue;
+								  }
+								  else
+								  {
+									  temparray[tmp2] = url[tmp];
+									  tmp++;
+									  tmp2++;
+
+								  }
+							  }
+							  sprintf_s(query, sizeof(query), "select url from blacklist where url like '%s%%'", temparray);
+							  state = mysql_query(connection, query);
+							  if (state == 0)
+							  {
+								  sql_result = mysql_store_result(connection);
+								  //printf("%s\n", query);
+								  if (mysql_fetch_row(sql_result) != NULL)
+								  {
+									  chk_black = 1;
+
+								  }
+							  }
+						  }
+						  if (temp == 1)
+						  {
+							  temp = 0;
+							  break;
+						  }
+					  }
+	}
 		break;
+
 	case PROTO_UDP:
 		udpptr = (udphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
 		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + udpptr->len;
 		break;
 	case PROTO_ICMP:
-//		printf("len : %d bytes\n", header->len);
+		//      printf("len : %d bytes\n", header->len);
 		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + ICMPHDR_LEN;
 		break;
 	case PROTO_ARP:
@@ -203,31 +270,31 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 		temp = ethptr->ether_shost;
 		u_char src_mac_array[6] = MID_OUT_MAC;
-		for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		for (int i = 0; i < ETHER_ADDR_LEN; i++)
 			temp[i] = src_mac_array[i]; //src change
 
 		temp = ethptr->ether_dhost;
 		u_char dst_mac_array[6] = RES_MAC;
-		for (int i = 0; i<ETHER_ADDR_LEN; i++)
+		for (int i = 0; i < ETHER_ADDR_LEN; i++)
 			temp[i] = dst_mac_array[i]; //dst change
 
 		//printf("src mac : ");
 		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//	printf("%02x:", src_mac_array[i]);
+		//   printf("%02x:", src_mac_array[i]);
 		//printf("\n");
 		//printf("src pkt : ");
 		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//	printf("%02x:", ethptr->ether_shost[i]);
+		//   printf("%02x:", ethptr->ether_shost[i]);
 		//printf("\n");
 		//printf("dst mac : ");
 		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//	printf("%02x:", dst_mac_array[i]);
+		//   printf("%02x:", dst_mac_array[i]);
 		//printf("\n");
 		//printf("dst pkt : ");
 		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//	printf("%02x:", ethptr->ether_dhost[i]);
+		//   printf("%02x:", ethptr->ether_dhost[i]);
 		//printf("\n");
-		
+
 		ipptr->saddr = inet_addr(MID_OUT_IP);
 		//printf("0x%x\n", ipptr->crc);
 		ipptr->crc = 0;
@@ -270,10 +337,17 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		}
 
 		/* Send down the packet */
-		if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
+		if (chk_black == 0)
 		{
-			fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
-			return;
+			if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
+			{
+				fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
+				return;
+			}
+		}
+		else
+		{
+			chk_black = 0;
 		}
 	}
 }
@@ -430,6 +504,22 @@ int main(int argc, char **argv)
 	char *devname, devs[100][100];
 	int count = 1, n;
 
+	//mysql 연동
+	if (mysql_init(&conn) == NULL)
+	{
+		printf("mysql_init() error!");
+	}
+	connection = mysql_real_connect(&conn, "192.168.32.216", "test", "test", "bob", 3306, (const char*)NULL, 0);
+	if (connection == NULL)
+	{
+		printf("%d 에러 : %s, %d\n", mysql_errno(&conn), mysql_error(&conn));
+		return 1;
+	}
+	if (mysql_select_db(&conn, "bob"))
+	{
+		printf("%d 에러 : %s, %d\n", mysql_errno(&conn), mysql_error(&conn));
+		return 1;
+	}
 
 	/* Retrieve the device list on the local machine */
 	if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
@@ -455,9 +545,6 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	printf("TIMEOUT : ");
-	scanf_s("%d", &TIMEOUT, sizeof(int));
-
 	printf("Enter the interface number (1-%d):", i);
 	scanf_s("%d", &inum, sizeof(inum));
 
@@ -470,14 +557,14 @@ int main(int argc, char **argv)
 	}
 
 	/* Jump to the selected adapter */
-	for (d = alldevs, i = 0; i< inum - 1; d = d->next, i++);
+	for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++);
 
 	/* Open the device */
 	if ((req_handle = pcap_open(d->name,          // name of the device
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		TIMEOUT,             // read timeout
+		-1,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)
@@ -500,14 +587,14 @@ int main(int argc, char **argv)
 	}
 
 	/* Jump to the selected adapter */
-	for (d = alldevs, j = 0; j< inum - 1; d = d->next, j++);
+	for (d = alldevs, j = 0; j < inum - 1; d = d->next, j++);
 
 	/* Open the device */
 	if ((res_handle = pcap_open(d->name,          // name of the device
 		65536,            // portion of the packet to capture
 		// 65536 guarantees that the whole packet will be captured on all the link layers
 		PCAP_OPENFLAG_PROMISCUOUS,    // promiscuous mode
-		TIMEOUT,             // read timeout
+		-1,             // read timeout
 		NULL,             // authentication on the remote machine
 		errbuf            // error buffer
 		)) == NULL)

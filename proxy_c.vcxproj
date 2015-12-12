@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\WpdPack\Lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\WpdPack\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\WpdPack\Lib;C:\Users\ssaemo_2\ssaemo\mysql-connector-c-6.1.6-win32\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\WpdPack\Include;C:\Users\ssaemo_2\ssaemo\mysql-connector-c-6.1.6-win32\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
