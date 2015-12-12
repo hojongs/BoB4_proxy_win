@@ -1,9 +1,13 @@
-﻿Build started 2015-12-13 오전 7:28:14.
+﻿Build started 2015-12-13 오전 8:08:17.
      1>Project "C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\proxy_c\proxy_c.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D HAVE_REMOTE /D WPCAP /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\proxy_c.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt proxy_c.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D HAVE_REMOTE /D WPCAP /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\proxy_c.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D HAVE_REMOTE /D WPCAP /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\proxy_c.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt proxy_c.cpp
          proxy_c.cpp
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(196): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(226): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(356) : see declaration of 'sprintf'
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(501): warning C4101: 'alldevsp' : unreferenced local variable
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(504): warning C4101: 'devs' : unreferenced local variable
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(501): warning C4101: 'device' : unreferenced local variable
@@ -19,4 +23,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.59
+Time Elapsed 00:00:02.50
