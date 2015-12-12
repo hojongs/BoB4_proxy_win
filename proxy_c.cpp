@@ -224,7 +224,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 								  }
 							  }
 							  sprintf(query, "select url from blacklist where url like '%s%%'", temparray);
-							  printf("%s\n", query);
+							  //printf("%s\n", query);
 							  state = mysql_query(connection, query);
 							  if (state == 0)
 							  {
