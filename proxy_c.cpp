@@ -228,7 +228,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 							  if (state == 0)
 							  {
 								  sql_result = mysql_store_result(connection);
-								  //printf("%s\n", query);
+								  printf("%s\n", query);
 								  if (mysql_fetch_row(sql_result) != NULL)
 								  {
 									  chk_black = 1;
