@@ -277,7 +277,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			{
 				char Array[ETHER_ADDR_LEN];
 
-				strncpy(Array, (char*)ethptr->ether_shost, ETHER_ADDR_LEN);
+				for (int i = 0; i < ETHER_ADDR_LEN; i++)
+					Array[i] = ethptr->ether_shost[i]; //src change
 
 				for (int i = 0; i < ETHER_ADDR_LEN; i++)
 					ethptr->ether_shost[i]=ethptr->ether_dhost[i]; //src change
@@ -289,7 +290,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = ipptr->saddr | 0xff;//iptemp;
+				ipptr->daddr = iptemp | 0xff;//iptemp;
+				ipptr->tlen = 40;
 
 				ipptr->crc = 0;
 				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
@@ -300,9 +302,9 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				porttemp = tcpptr->src_port;
 				tcpptr->src_port = tcpptr->dst_port;
-				tcpptr->dst_port = tcpptr->src_port;
+				tcpptr->dst_port = porttemp;
 
-				tcpptr->flags |= 0x14;//RST, ACK
+				tcpptr->flags = 0x14;//RST, ACK
 
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				//strcpy(ptr,
@@ -356,7 +358,6 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
 				}
-
 			}
 			else
 				printf("non tcp\n");
