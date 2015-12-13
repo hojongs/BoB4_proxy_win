@@ -291,12 +291,12 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->ack = numtemp;
 				printf("raw  : %x\n", tcpptr->ack);
 				
-				tcpptr->ack = ntohl(ntohl(tcpptr->ack)+1);
+				tcpptr->ack = ntohl(ntohl(tcpptr->ack)+1+16+256);
 				//tcpptr->ack = tcpptr->ack + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
 				printf("calc : %x\n", tcpptr->ack);
 				printf("tlen : %u\n", ntohs(ipptr->tlen));
 				printf("tlen : %x\n", ntohs(ipptr->tlen));
-				printf("hdr : %u\n", ipptr->ihl * 4 + tcpptr->data_offset * 4);
+				printf("mn : %u\n", ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 
 				u_long iptemp;
 
