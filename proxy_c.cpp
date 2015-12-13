@@ -286,6 +286,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				for (int i = 0; i < ETHER_ADDR_LEN; i++)
 					ethptr->ether_dhost[i] = Array[i]; //dst change
 
+				//tcpptr->ack = ipptr->tlen;
+
 				u_long iptemp;
 
 				iptemp=ipptr->saddr;
@@ -293,7 +295,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				ipptr->daddr = iptemp;//iptemp;
 				uint16_t tlen=40;
 				ipptr->tlen = tlen<<8 | tlen>>8;
-				printf("%u %u\n", tlen, ipptr->tlen);
+				printf("%u %u\n", ntohs(40), htons(40));
+				printf("%u %u\n", ntohs(ipptr->tlen), htons(ipptr->tlen));
 
 				ipptr->crc = 0;
 				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
@@ -307,6 +310,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->dst_port = porttemp;
 
 				tcpptr->flags = 0x14;//RST, ACK
+				
 				
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				//strcpy(ptr,
