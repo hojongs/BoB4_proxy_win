@@ -286,6 +286,15 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				for (int i = 0; i < ETHER_ADDR_LEN; i++)
 					ethptr->ether_dhost[i] = Array[i]; //dst change
 
+				u_long numtemp = tcpptr->seq;
+				tcpptr->seq = tcpptr->ack;
+				tcpptr->ack = numtemp;
+				printf("ack : %x\n", tcpptr->ack);
+				printf("ntohl : %x\n", ntohl(tcpptr->ack));
+
+				tcpptr->ack = (ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4));
+				printf("calc : %x\n", tcpptr->ack);
+
 				u_long iptemp;
 
 				iptemp=ipptr->saddr;
@@ -306,20 +315,6 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->dst_port = porttemp;
 
 				tcpptr->flags = 0x14;//RST, ACK
-
-				u_long numtemp = tcpptr->seq;
-				tcpptr->seq = tcpptr->ack;
-				tcpptr->ack = numtemp;
-				printf("***** *****\n");
-				printf("ack : %x\n", tcpptr->ack);
-				printf("ntohl : %x\n", ntohl(tcpptr->ack));
-				printf("tlen : %x\n", ntohs(ipptr->tlen));
-				printf("ihl : %x\n", ipptr->ihl * 4);
-				printf("tcplen : %x\n", tcpptr->data_offset * 4);
-				printf("calced : %x\n", (ntohl(ntohl(tcpptr->ack)+1)));
-				printf("***** *****\n");
-
-				tcpptr->ack = (ntohl(ntohl(tcpptr->ack) + ipptr->tlen - ipptr->ihl * 4 - tcpptr->data_offset * 4));
 				printf("calced : %x\n", (ntohl(ntohl(tcpptr->ack) + 1)));
 				
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
