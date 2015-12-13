@@ -294,6 +294,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->ack = ntohl(ntohl(tcpptr->ack)+1);
 				//tcpptr->ack = tcpptr->ack + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
 				printf("calc : %x\n", tcpptr->ack);
+				printf("len : %ul\n", ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 
 				u_long iptemp;
 
