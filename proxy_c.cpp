@@ -291,7 +291,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp | 0xff;//iptemp;
-				ipptr->tlen = 40;
+				ipptr->tlen = ntohs(40);
 
 				ipptr->crc = 0;
 				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
