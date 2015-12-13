@@ -312,7 +312,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->ack = numtemp;
 				printf("ack : %x\n", tcpptr->ack);
 				printf("%x\n", (ipptr->tlen >> 8 | ipptr->tlen << 8) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
-				tcpptr->ack = ntohl(tcpptr->ack + (ipptr->tlen >> 8 | ipptr->tlen << 8) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
+				tcpptr->ack = tcpptr->ack + (ipptr->tlen >> 8 | ipptr->tlen << 8) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
 				printf("ack before : %x\n", tcpptr->ack);
 
 				
