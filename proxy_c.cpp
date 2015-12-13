@@ -305,7 +305,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->dst_port = porttemp;
 
 				tcpptr->flags = 0x14;//RST, ACK
-
+				
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				//strcpy(ptr,
 				//	"HTTP/1.0 200 OK\r\n"\
