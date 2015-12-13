@@ -83,8 +83,8 @@ typedef struct {
 	uint16_t dst_port;
 	uint32_t seq;
 	uint32_t ack;
-	uint8_t  data_offset : 4;  // 4 bits. *4
 	uint8_t  not_used : 4;
+	uint8_t  data_offset : 4;  // 4 bits. *4
 	uint8_t  flags;
 	uint16_t window_size;
 	uint16_t checksum;
