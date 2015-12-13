@@ -54,7 +54,7 @@ typedef struct ip_address{
 
 /* IPv4 header */
 typedef struct ip_header{
-	u_char  ihl : 4;
+	u_char  ihl : 4;//*4
 	u_char  ver : 4;        // ver (4 bits) + Internet header length (4 bits)
 	u_char  tos;            // Type of service 
 	u_short tlen;           // Total length 
@@ -83,7 +83,7 @@ typedef struct {
 	uint16_t dst_port;
 	uint32_t seq;
 	uint32_t ack;
-	uint8_t  data_offset : 4;  // 4 bits
+	uint8_t  data_offset : 4;  // 4 bits. *4
 	uint8_t  not_used : 4;
 	uint8_t  flags;
 	uint16_t window_size;
@@ -162,8 +162,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	char*ptr = (char*)buffer;
 	ethhdr*ethptr = (ethhdr*)ptr;
 	iphdr*ipptr;
-	tcphdr*tcpptr;
-	udphdr*udpptr;
+	tcphdr*tcpptr=NULL;
+	udphdr*udpptr=NULL;
 	char*data;
 	char url[65536]{ 0 };
 	int chk_black = 0;
@@ -186,65 +186,65 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	{
 	case PROTO_TCP:
 	{
-					  char *query = new char[200];
-					  char temparray[200] = { 0 };
-					  int state = 0;
+		char *query = new char[200];
+		char temparray[200] = { 0 };
+		int state = 0;
 
 
-					  tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
-					  data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
-					  for (int i = 0; i < header->caplen; i++)
-					  {
-						  if (buffer[i] == 0x48 && buffer[i + 1] == 0x6f && buffer[i + 2] == 0x73 && buffer[i + 3] == 0x74 && buffer[i + 4] == 0x3a && buffer[i + 5] == 0x20)
-						  {
-							  for (int j = i + 6;; j++)
-							  {
-								  //temp = buffer[j];
-								  if (buffer[j] == 0x0d && buffer[j + 1] == 0x0a)
-								  {
-									  temp = 1;
-									  break;
-								  }
-								  url[j - (i + 6)] = ptr[j];
-							  }
-							  int tmp = 0, tmp2 = 0;
-							  while (url[tmp])
-							  {
-								  if (url[tmp] == 'w' && url[tmp + 1] == 'w' && url[tmp + 2] == 'w')
-								  {
-									  tmp = tmp + 4;
-									  continue;
-								  }
-								  else
-								  {
-									  temparray[tmp2] = url[tmp];
-									  tmp++;
-									  tmp2++;
+		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
+		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
+		for (int i = 0; i < header->caplen; i++)
+		{
+			if (buffer[i] == 0x48 && buffer[i + 1] == 0x6f && buffer[i + 2] == 0x73 && buffer[i + 3] == 0x74 && buffer[i + 4] == 0x3a && buffer[i + 5] == 0x20)
+			{ //daddr
+				for (int j = i + 6;; j++)
+				{
+					//temp = buffer[j];
+					if (buffer[j] == 0x0d && buffer[j + 1] == 0x0a)
+					{
+						temp = 1;
+						break;
+					}
+					url[j - (i + 6)] = ptr[j];
+				}
+				int tmp = 0, tmp2 = 0;
+				while (url[tmp])
+				{ //
+					if (url[tmp] == 'w' && url[tmp + 1] == 'w' && url[tmp + 2] == 'w')
+					{ //www
+						tmp = tmp + 4;
+						continue;
+					}
+					else
+					{
+						temparray[tmp2] = url[tmp];
+						tmp++;
+						tmp2++;
 
-								  }
-							  }
-							  sprintf(query, "select url from blacklist where url like '%s%%'", temparray);
-							  //printf("%s\n", query);
-							  state = mysql_query(connection, query);
-							  if (state == 0)
-							  {
-								  sql_result = mysql_store_result(connection);
-								 //printf("%s\n", query);
-								  if (mysql_fetch_row(sql_result) != NULL)
-								  {
-									  printf("%s\n", query);
-									  chk_black = 1;
-								  }
-							  }
-						  }
-						  if (temp == 1)
-						  {
-							  temp = 0;
-							  break;
-						  }
-					  }
-	}
+					}
+				}
+				sprintf(query, "select url from blacklist where url like '%s%%'", temparray);
+				//printf("%s\n", query);
+				state = mysql_query(connection, query);
+				if (state == 0) //query ok
+				{
+					sql_result = mysql_store_result(connection);
+					//printf("%s\n", query);
+					if (mysql_fetch_row(sql_result) != NULL) //filt
+					{
+						//printf("%s\n", query);
+						chk_black = 1;
+					}
+				}
+			}
+			if (temp == 1)
+			{
+				temp = 0;
+				break;
+			}
+		}
 		break;
+	}
 
 	case PROTO_UDP:
 		udpptr = (udphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
@@ -338,17 +338,30 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		}
 
 		/* Send down the packet */
-		if (chk_black == 0)
+		if (chk_black == 0) //send packet
 		{
+
 			if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
 			{
 				fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
 				return;
 			}
 		}
-		else
+		else//filt
 		{
-
+			char denied[65536];
+			if (tcpptr!=NULL) //tcp
+			strncpy(denied, (char*)buffer, 14+ipptr->ihl*4+tcpptr->data_offset*4);
+			strcpy(denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4,
+				"HTTP/1.0 200 OK\r\n"\
+				"Content - type: text / html\r\n"\
+				"\r\n"\
+				"<html><script>\n"\
+				"location.replace(\"http://warning.or.kr\");\n"\
+				"</script></html>\n"\
+				);
+			printf("%s", denied);
+			getchar();
 			chk_black = 0;
 		}
 	}
