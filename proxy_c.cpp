@@ -289,7 +289,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				u_long numtemp = tcpptr->seq;
 				tcpptr->seq = tcpptr->ack;
 				tcpptr->ack = numtemp;
-				tcpptr->window_size = 0;
+				//tcpptr->window_size = 0;
 
 				//printf("raw  : %x\n", tcpptr->ack);
 				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
@@ -301,7 +301,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				ipptr->tos = 0x44;
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = iptemp | 0xff000000;//iptemp;
+				ipptr->daddr = iptemp;//iptemp;
 				uint16_t tlen = ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149;
 				ipptr->tlen = tlen<<8 | tlen>>8;
 
@@ -362,7 +362,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				}
 				memcpy((char*)denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149);
 				
-				fprintf(stdout, "%s\n", denied);
+				//fprintf(stdout, "%s\n", denied);
 
 				/* Send down the packet *///RST
 				if (pcap_sendpacket(hdzip->req_handle, denied, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149 /* size */) != 0)
