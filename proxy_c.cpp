@@ -289,7 +289,11 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = 0xffffffff;//iptemp;
+				ipptr->daddr = ipptr->saddr | 0xff;//iptemp;
+
+				ipptr->crc = 0;
+				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+				//printf("0x%x\n", ipptr->crc);
 
 
 				uint8_t porttemp;
@@ -298,11 +302,18 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->src_port = tcpptr->dst_port;
 				tcpptr->dst_port = tcpptr->src_port;
 
-				ipptr->crc = 0;
-				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
-				//printf("0x%x\n", ipptr->crc);
+				tcpptr->flags |= 0x14;//RST, ACK
 
-
+				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
+				//strcpy(ptr,
+				//	"HTTP/1.0 200 OK\r\n"\
+				//	"Content-type: text/html\r\n"\
+				//	"\r\n"\
+				//	"<html><script>\n"\
+				//	"location.replace(\"http://warning.or.kr\");\n"\
+				//	"</script></html>\n"\
+				//	);
+				//printf("%d\n%s\n", strlen(denied), denied);
 
 				if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
 				{
@@ -336,22 +347,11 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 						//printf("calc csum : 0x%x\n", tcpptr->checksum);
 					}
 				}
-
-				strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
-				strcpy(ptr,
-					"HTTP/1.0 200 OK\r\n"\
-					"Content-type: text/html\r\n"\
-					"\r\n"\
-					"<html><script>\n"\
-					"location.replace(\"http://warning.or.kr\");\n"\
-					"</script></html>\n"\
-					);
-				printf("%d\n%s\n", strlen(denied), denied);
 				
 
 
-				/* Send down the packet */
-				if (pcap_sendpacket(hdzip->req_handle, buffer, 54+149 /* size */) != 0)
+				/* Send down the packet *///RST
+				if (pcap_sendpacket(hdzip->req_handle, buffer, 54 /* size */) != 0)//+149
 				{
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
