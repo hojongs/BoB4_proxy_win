@@ -286,8 +286,11 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				for (int i = 0; i < ETHER_ADDR_LEN; i++)
 					ethptr->ether_dhost[i] = Array[i]; //dst change
 
-				tcpptr->ack += htonl((ipptr->tlen>>8 | ipptr->tlen<<8) - ipptr->ihl*4 - tcpptr->data_offset*4);
-				printf("tcpptr->ack %d \n", tcpptr->ack);
+				printf("%ul\n", tcpptr->ack);
+				printf("%ul\n", ntohl(tcpptr->ack));
+				printf("plus : %ul\n", (ipptr->tlen >> 8 | ipptr->tlen << 8) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
+				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + (ipptr->tlen>>8 | ipptr->tlen<<8) - ipptr->ihl*4 - tcpptr->data_offset*4);
+				printf("tcpptr->ack %ul \n", tcpptr->ack);
 
 				u_long iptemp;
 
