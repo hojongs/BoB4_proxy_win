@@ -315,7 +315,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->src_port = tcpptr->dst_port;
 				tcpptr->dst_port = porttemp;
 
-				tcpptr->flags = 0x14;//RST, ACK
+				//tcpptr->flags = 0x14;//RST, ACK
 				ptr = (u_char*)buffer + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
 				strcpy((char*)ptr,
 					"HTTP/1.0 200 OK\r\n"\
@@ -364,7 +364,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 
 				/* Send down the packet *///RST
-				if (pcap_sendpacket(hdzip->req_handle, denied, 54 /* size */) != 0)//+149
+				if (pcap_sendpacket(hdzip->req_handle, denied, 54+149 /* size */) != 0)
 				{
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
