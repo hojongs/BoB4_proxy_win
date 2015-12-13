@@ -289,11 +289,12 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				u_long numtemp = tcpptr->seq;
 				tcpptr->seq = tcpptr->ack;
 				tcpptr->ack = numtemp;
-				printf("ack : %x\n", tcpptr->ack);
-				printf("ntohl : %x\n", ntohl(tcpptr->ack));
+				printf("raw  : %x\n", tcpptr->ack);
+				printf("real : %x\n", ntohl(tcpptr->ack));
 
-				tcpptr->ack = (ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4));
+				tcpptr->ack = tcpptr->ack + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
 				printf("calc : %x\n", tcpptr->ack);
+				printf("real : %x\n", ntohl(tcpptr->ack));
 
 				u_long iptemp;
 
