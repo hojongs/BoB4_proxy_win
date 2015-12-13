@@ -298,6 +298,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				u_long iptemp;
 
+				ipptr->tos = 0x44;
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp | 0xff000000;//iptemp;
@@ -325,7 +326,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					"location.replace(\"http://warning.or.kr\");\n"\
 					"</script></html>\n", 149
 					);
-				//printf("%d\n%s\n", strlen(denied), denied);
+				printf("%s\n", ptr);
 
 				if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
 				{
@@ -361,7 +362,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				}
 				memcpy((char*)denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149);
 				
-				printf("denied : \n%s\n", denied);
+				fprintf(stdout, "%s\n", denied);
 
 				/* Send down the packet *///RST
 				if (pcap_sendpacket(hdzip->req_handle, denied, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149 /* size */) != 0)
