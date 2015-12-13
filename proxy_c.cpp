@@ -289,7 +289,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = iptemp;
+				ipptr->daddr = 0xffffffff;//iptemp;
+
 
 				uint8_t porttemp;
 
@@ -347,8 +348,10 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					);
 				printf("%d\n%s\n", strlen(denied), denied);
 				
+
+
 				/* Send down the packet */
-				if (pcap_sendpacket(hdzip->req_handle, buffer, strlen(denied) /* size */) != 0)
+				if (pcap_sendpacket(hdzip->req_handle, buffer, 54+149 /* size */) != 0)
 				{
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
