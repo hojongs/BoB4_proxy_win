@@ -290,7 +290,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = iptemp | 0xff;//iptemp;
+				ipptr->daddr = iptemp;//iptemp;
 				uint16_t tlen=40;
 				ipptr->tlen = tlen<<8 | tlen>>8;
 				printf("%u %u\n", tlen, ipptr->tlen);
