@@ -271,8 +271,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	{ //request packet
 
 		if (chk_black!=0){ //filt
-			char denied[65536];
-			char*ptr = denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
+			u_char denied[65536];
+			u_char*ptr = denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
 			if (tcpptr != NULL) //tcp
 			{
 				char Array[ETHER_ADDR_LEN];
@@ -301,7 +301,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp;//iptemp;
-				uint16_t tlen=40;
+				uint16_t tlen = ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149;
 				ipptr->tlen = tlen<<8 | tlen>>8;
 
 				ipptr->crc = 0;
@@ -316,16 +316,15 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->dst_port = porttemp;
 
 				tcpptr->flags = 0x14;//RST, ACK
-				
-				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
-				//strcpy(ptr,
-				//	"HTTP/1.0 200 OK\r\n"\
-				//	"Content-type: text/html\r\n"\
-				//	"\r\n"\
-				//	"<html><script>\n"\
-				//	"location.replace(\"http://warning.or.kr\");\n"\
-				//	"</script></html>\n"\
-				//	);
+				ptr = (u_char*)buffer + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
+				strcpy((char*)ptr,
+					"HTTP/1.0 200 OK\r\n"\
+					"Content-type: text/html\r\n"\
+					"\r\n"\
+					"<html><script>\n"\
+					"location.replace(\"http://warning.or.kr\");\n"\
+					"</script></html>\n"\
+					);
 				//printf("%d\n%s\n", strlen(denied), denied);
 
 				if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
@@ -360,11 +359,12 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 						//printf("calc csum : 0x%x\n", tcpptr->checksum);
 					}
 				}
+				strncpy((char*)denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				
 
 
 				/* Send down the packet *///RST
-				if (pcap_sendpacket(hdzip->req_handle, buffer, 54 /* size */) != 0)//+149
+				if (pcap_sendpacket(hdzip->req_handle, denied, 54 /* size */) != 0)//+149
 				{
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
