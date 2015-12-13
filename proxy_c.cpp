@@ -292,7 +292,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp | 0xff;//iptemp;
 				uint16_t tlen=40;
-				ipptr->tlen = ntohs(tlen<<8 | tlen>>8);
+				ipptr->tlen = tlen<<8 | tlen>>8;
+				printf("%u %u\n", tlen, ipptr->tlen);
 
 				ipptr->crc = 0;
 				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
