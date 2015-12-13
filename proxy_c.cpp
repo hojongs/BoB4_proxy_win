@@ -313,14 +313,14 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				printf("***** *****\n");
 				printf("ack : %x\n", tcpptr->ack);
 				printf("ntohl : %x\n", ntohl(tcpptr->ack));
-				printf("tlen : %u\n", ipptr->tlen);
-				printf("ihl : %u\n", ipptr->ihl * 4);
-				printf("tcplen : %u\n", tcpptr->data_offset * 4);
-				printf("calced : %u\n", (ntohl(ntohl(tcpptr->ack)+1)));
+				printf("tlen : %x\n", ntohs(ipptr->tlen));
+				printf("ihl : %x\n", ipptr->ihl * 4);
+				printf("tcplen : %x\n", tcpptr->data_offset * 4);
+				printf("calced : %x\n", (ntohl(ntohl(tcpptr->ack)+1)));
 				printf("***** *****\n");
 
 				tcpptr->ack = (ntohl(ntohl(tcpptr->ack) + ipptr->tlen - ipptr->ihl * 4 - tcpptr->data_offset * 4));
-				printf("calced : %u\n", (ntohl(ntohl(tcpptr->ack) + 1)));
+				printf("calced : %x\n", (ntohl(ntohl(tcpptr->ack) + 1)));
 				
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				//strcpy(ptr,
