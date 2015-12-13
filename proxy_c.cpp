@@ -289,10 +289,10 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				u_long numtemp = tcpptr->seq;
 				tcpptr->seq = tcpptr->ack;
 				tcpptr->ack = numtemp;
-
-				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
+				tcpptr->window_size = 0;
 
 				printf("raw  : %x\n", tcpptr->ack);
+				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 				printf("calc : %x\n", tcpptr->ack);
 				
 
