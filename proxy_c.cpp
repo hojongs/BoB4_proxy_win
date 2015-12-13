@@ -298,7 +298,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				u_long iptemp;
 
-				//ipptr->tos = 0x44;
+				ipptr->tos = 0x44;
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp;//iptemp;
