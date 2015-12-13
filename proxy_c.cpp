@@ -350,18 +350,23 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		else//filt
 		{
 			char denied[65536];
-			if (tcpptr!=NULL) //tcp
-			strncpy(denied, (char*)buffer, 14+ipptr->ihl*4+tcpptr->data_offset*4);
-			strcpy(denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4,
-				"HTTP/1.0 200 OK\r\n"\
-				"Content - type: text / html\r\n"\
-				"\r\n"\
-				"<html><script>\n"\
-				"location.replace(\"http://warning.or.kr\");\n"\
-				"</script></html>\n"\
-				);
-			printf("%s", denied);
-			getchar();
+			char*ptr = denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
+			if (tcpptr != NULL) //tcp
+			{
+				strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
+				strcpy(ptr,
+					"HTTP/1.0 200 OK\r\n"\
+					"Content-type: text/html\r\n"\
+					"\r\n"\
+					"<html><script>\n"\
+					"location.replace(\"http://warning.or.kr\");\n"\
+					"</script></html>\n"\
+					);
+			}
+			else
+				printf("non tcp\n");
+			printf("%d\n", 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
+			printf("%s\n", ptr);
 			chk_black = 0;
 		}
 	}
