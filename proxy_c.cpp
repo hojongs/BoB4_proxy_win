@@ -291,16 +291,16 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->ack = numtemp;
 				tcpptr->window_size = 0;
 
-				printf("raw  : %x\n", tcpptr->ack);
+				//printf("raw  : %x\n", tcpptr->ack);
 				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
-				printf("calc : %x\n", tcpptr->ack);
+				//printf("calc : %x\n", tcpptr->ack);
 				
 
 				u_long iptemp;
 
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
-				ipptr->daddr = iptemp;//iptemp;
+				ipptr->daddr = iptemp | 0xff000000;//iptemp;
 				uint16_t tlen = ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149;
 				ipptr->tlen = tlen<<8 | tlen>>8;
 
@@ -317,13 +317,13 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				//tcpptr->flags = 0x14;//RST, ACK
 				ptr = (u_char*)buffer + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
-				strcpy((char*)ptr,
+				memcpy((char*)ptr,
 					"HTTP/1.0 200 OK\r\n"\
 					"Content-type: text/html\r\n"\
 					"\r\n"\
 					"<html><script>\n"\
 					"location.replace(\"http://warning.or.kr\");\n"\
-					"</script></html>\n"\
+					"</script></html>\n", 149
 					);
 				//printf("%d\n%s\n", strlen(denied), denied);
 
@@ -359,12 +359,12 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 						//printf("calc csum : 0x%x\n", tcpptr->checksum);
 					}
 				}
-				strncpy((char*)denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
+				memcpy((char*)denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149);
 				
-
+				printf("denied : \n%s\n", denied);
 
 				/* Send down the packet *///RST
-				if (pcap_sendpacket(hdzip->req_handle, denied, 54+149 /* size */) != 0)
+				if (pcap_sendpacket(hdzip->req_handle, denied, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149 /* size */) != 0)
 				{
 					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
 					return;
