@@ -291,7 +291,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->ack = numtemp;
 				printf("raw  : %x\n", tcpptr->ack);
 
-				tcpptr->ack = tcpptr->ack + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
+				tcpptr->ack++;
+				//tcpptr->ack = tcpptr->ack + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
 				printf("calc : %x\n", tcpptr->ack);
 
 				u_long iptemp;
@@ -314,7 +315,6 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->dst_port = porttemp;
 
 				tcpptr->flags = 0x14;//RST, ACK
-				printf("calced : %x\n", (ntohl(ntohl(tcpptr->ack) + 1)));
 				
 				//strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				//strcpy(ptr,
