@@ -267,92 +267,33 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	//printf("saddr : %u %u\n", ipptr->saddr, inet_addr(REQ_IP));
 	if (ipptr->saddr == inet_addr(REQ_IP))
 	{ //request packet
-		u_char* temp;
 
-		temp = ethptr->ether_shost;
-		u_char src_mac_array[6] = MID_OUT_MAC;
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			temp[i] = src_mac_array[i]; //src change
-
-		temp = ethptr->ether_dhost;
-		u_char dst_mac_array[6] = RES_MAC;
-		for (int i = 0; i < ETHER_ADDR_LEN; i++)
-			temp[i] = dst_mac_array[i]; //dst change
-
-		//printf("src mac : ");
-		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//   printf("%02x:", src_mac_array[i]);
-		//printf("\n");
-		//printf("src pkt : ");
-		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//   printf("%02x:", ethptr->ether_shost[i]);
-		//printf("\n");
-		//printf("dst mac : ");
-		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//   printf("%02x:", dst_mac_array[i]);
-		//printf("\n");
-		//printf("dst pkt : ");
-		//for (int i = 0; i < ETHER_ADDR_LEN; i++)
-		//   printf("%02x:", ethptr->ether_dhost[i]);
-		//printf("\n");
-
-		ipptr->saddr = inet_addr(MID_OUT_IP);
-		//printf("0x%x\n", ipptr->crc);
-		ipptr->crc = 0;
-		ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
-		//printf("0x%x\n", ipptr->crc);
-
-
-
-		if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
-		{
-			//tcp checksum
-			char psh[65536];
-			pseudo_header*pshptr = (pseudo_header*)psh;
-			pshptr->saddr = ipptr->saddr;
-			pshptr->daddr = ipptr->daddr;
-			pshptr->reversed = 0;
-			pshptr->proto = ipptr->proto;
-			if (ipptr->proto == PROTO_TCP)
-			{
-				//printf("*** tcp ***\n");
-				pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
-				tcpptr->checksum = 0;
-				memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
-				//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
-				//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
-				tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
-				//printf("calc csum : 0x%x\n", tcpptr->checksum);
-			}
-			else
-			{
-				//printf("*** udp ***\n");
-				pshptr->tulen = udpptr->len;
-				udpptr->crc = 0;
-				memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
-				//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
-				//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
-				udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
-				//printf("calc csum : 0x%x\n", tcpptr->checksum);
-			}
-		}
-
-		/* Send down the packet */
-		if (chk_black == 0) //send packet
-		{
-
-			if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
-			{
-				fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
-				return;
-			}
-		}
-		else//filt
-		{
+		if (chk_black!=0){ //filt
 			char denied[65536];
 			char*ptr = denied + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
 			if (tcpptr != NULL) //tcp
 			{
+				char Array[ETHER_ADDR_LEN];
+
+				strncpy(Array, (char*)ethptr->ether_shost, ETHER_ADDR_LEN);
+
+				for (int i = 0; i < ETHER_ADDR_LEN; i++)
+					ethptr->ether_shost[i]=ethptr->ether_dhost[i]; //src change
+
+				for (int i = 0; i < ETHER_ADDR_LEN; i++)
+					ethptr->ether_dhost[i] = Array[i]; //dst change
+
+				u_long iptemp;
+
+				iptemp=ipptr->saddr;
+
+				printf("%ul %ul\n", ipptr->saddr, ipptr->daddr);
+
+				ipptr->saddr = ipptr->daddr;
+				ipptr->daddr = iptemp;
+
+				printf("%ul %ul\n", ipptr->saddr, ipptr->daddr);
+
 				strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				strcpy(ptr,
 					"HTTP/1.0 200 OK\r\n"\
@@ -362,12 +303,90 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					"location.replace(\"http://warning.or.kr\");\n"\
 					"</script></html>\n"\
 					);
+
 			}
 			else
 				printf("non tcp\n");
-			printf("%d\n", 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
-			printf("%s\n", ptr);
 			chk_black = 0;
+		}
+		else //relay
+		{
+			u_char* temp;
+
+			temp = ethptr->ether_shost;
+			u_char src_mac_array[6] = MID_OUT_MAC;
+			for (int i = 0; i < ETHER_ADDR_LEN; i++)
+				temp[i] = src_mac_array[i]; //src change
+
+			temp = ethptr->ether_dhost;
+			u_char dst_mac_array[6] = RES_MAC;
+			for (int i = 0; i < ETHER_ADDR_LEN; i++)
+				temp[i] = dst_mac_array[i]; //dst change
+
+			//printf("src mac : ");
+			//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+			//   printf("%02x:", src_mac_array[i]);
+			//printf("\n");
+			//printf("src pkt : ");
+			//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+			//   printf("%02x:", ethptr->ether_shost[i]);
+			//printf("\n");
+			//printf("dst mac : ");
+			//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+			//   printf("%02x:", dst_mac_array[i]);
+			//printf("\n");
+			//printf("dst pkt : ");
+			//for (int i = 0; i < ETHER_ADDR_LEN; i++)
+			//   printf("%02x:", ethptr->ether_dhost[i]);
+			//printf("\n");
+
+			ipptr->saddr = inet_addr(MID_OUT_IP);
+			//printf("0x%x\n", ipptr->crc);
+			ipptr->crc = 0;
+			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+			//printf("0x%x\n", ipptr->crc);
+
+
+
+			if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
+			{
+				//tcp checksum
+				char psh[65536];
+				pseudo_header*pshptr = (pseudo_header*)psh;
+				pshptr->saddr = ipptr->saddr;
+				pshptr->daddr = ipptr->daddr;
+				pshptr->reversed = 0;
+				pshptr->proto = ipptr->proto;
+				if (ipptr->proto == PROTO_TCP)
+				{
+					//printf("*** tcp ***\n");
+					pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
+					tcpptr->checksum = 0;
+					memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
+					//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+					//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+					tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+					//printf("calc csum : 0x%x\n", tcpptr->checksum);
+				}
+				else
+				{
+					//printf("*** udp ***\n");
+					pshptr->tulen = udpptr->len;
+					udpptr->crc = 0;
+					memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
+					//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+					//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+					udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+					//printf("calc csum : 0x%x\n", tcpptr->checksum);
+				}
+			}
+
+			/* Send down the packet */
+			if (pcap_sendpacket(res_handle, buffer, header->len /* size */) != 0)
+			{
+				fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(res_handle));
+				return;
+			}
 		}
 	}
 }
