@@ -157,7 +157,9 @@ u_short checksum_tu(unsigned short *   data, int length)
 
 void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
-	pcap_t* res_handle = (pcap_t*)args;
+	struct handlezip* hdzip= (struct handlezip*)args;
+	pcap_t*res_handle = hdzip->res_handle;
+
 
 	char*ptr = (char*)buffer;
 	ethhdr*ethptr = (ethhdr*)ptr;
@@ -286,13 +288,53 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				u_long iptemp;
 
 				iptemp=ipptr->saddr;
-
-				printf("%ul %ul\n", ipptr->saddr, ipptr->daddr);
-
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp;
 
-				printf("%ul %ul\n", ipptr->saddr, ipptr->daddr);
+				uint8_t porttemp;
+
+				porttemp = tcpptr->src_port;
+				tcpptr->src_port = tcpptr->dst_port;
+				tcpptr->dst_port = tcpptr->src_port;
+
+				ipptr->crc = 0;
+				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
+				//printf("0x%x\n", ipptr->crc);
+
+
+
+				if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
+				{
+					//tcp checksum
+					char psh[65536];
+					pseudo_header*pshptr = (pseudo_header*)psh;
+					pshptr->saddr = ipptr->saddr;
+					pshptr->daddr = ipptr->daddr;
+					pshptr->reversed = 0;
+					pshptr->proto = ipptr->proto;
+					if (ipptr->proto == PROTO_TCP)
+					{
+						//printf("*** tcp ***\n");
+						pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
+						tcpptr->checksum = 0;
+						memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
+						//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+						//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+						tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+						//printf("calc csum : 0x%x\n", tcpptr->checksum);
+					}
+					else
+					{
+						//printf("*** udp ***\n");
+						pshptr->tulen = udpptr->len;
+						udpptr->crc = 0;
+						memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
+						//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+						//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+						udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+						//printf("calc csum : 0x%x\n", tcpptr->checksum);
+					}
+				}
 
 				strncpy(denied, (char*)buffer, 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4);
 				strcpy(ptr,
@@ -303,6 +345,13 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					"location.replace(\"http://warning.or.kr\");\n"\
 					"</script></html>\n"\
 					);
+				
+				/* Send down the packet */
+				if (pcap_sendpacket(hdzip->req_handle, buffer, header->len /* size */) != 0)
+				{
+					fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(hdzip->req_handle));
+					return;
+				}
 
 			}
 			else
@@ -678,7 +727,7 @@ int main(int argc, char **argv)
 		return(1);
 	}
 
-	pcap_loop(req_handle, -1, req_handling, (u_char*)res_handle);
+	pcap_loop(req_handle, -1, req_handling, (u_char*)&hdzip);
 
 	return 0;
 }
