@@ -289,7 +289,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				u_long numtemp = tcpptr->seq;
 				tcpptr->seq = tcpptr->ack;
 				tcpptr->ack = numtemp;
-				//tcpptr->window_size = 0;
+				tcpptr->window_size = 0;
 
 				//printf("raw  : %x\n", tcpptr->ack);
 				tcpptr->ack = ntohl(ntohl(tcpptr->ack) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
@@ -298,12 +298,13 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 				u_long iptemp;
 
-				ipptr->tos = 0x44;
+				//ipptr->tos = 0x44;
 				iptemp=ipptr->saddr;
 				ipptr->saddr = ipptr->daddr;
 				ipptr->daddr = iptemp;//iptemp;
 				uint16_t tlen = ipptr->ihl * 4 + tcpptr->data_offset * 4 + 149;
 				ipptr->tlen = tlen<<8 | tlen>>8;
+				ipptr->flags_fo = 0;
 
 				ipptr->crc = 0;
 				ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
@@ -316,7 +317,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				tcpptr->src_port = tcpptr->dst_port;
 				tcpptr->dst_port = porttemp;
 
-				//tcpptr->flags = 0x14;//RST, ACK
+				tcpptr->flags = 0x19;//RST, ACK
 				ptr = (u_char*)buffer + 14 + ipptr->ihl * 4 + tcpptr->data_offset * 4;
 				memcpy((char*)ptr,
 					"HTTP/1.0 200 OK\r\n"\
@@ -326,7 +327,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 					"location.replace(\"http://warning.or.kr\");\n"\
 					"</script></html>\n", 149
 					);
-				printf("%s\n", ptr);
+				//printf("%s\n", ptr);
 
 				if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
 				{
