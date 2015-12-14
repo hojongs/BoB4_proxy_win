@@ -269,7 +269,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	if (ipptr->saddr == inet_addr(REQ_IP))/******************************************************************************************************************/
 	{
 		//if(ipptr->proto==PROTO_TCP && tcpptr->dst_port == ntohs(80) && tcpptr->flags==0x18/*GET*/)//
-		if (chk_black != 0)
+		if (chk_black == 1)
 		{ //filt
 			pcap_t*req_handle = hdzip->req_handle;
 			u_char* temp;
@@ -297,17 +297,19 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			tcpptr->ack = ntohl(ntohl(temp4) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 			//tcpptr->flags = 0x18;
 
-			int setlen=114;
-
-			memcpy(data, 
+			char warning[65536]=
 				"HTTP/1.0 200 OK\r\n"\
 				"Content-type: text/html\r\n"\
 				"\r\n"\
 				"<html><script>\n"\
 				"location.replace(\"http://warning.or.kr\");\n"\
-				"</script></html>\");\n",
-				setlen);
-			ipptr->tlen = ntohs(14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + setlen);
+				"</script></html>\");\n"
+				;
+
+			memcpy(data, 
+				warning,
+				strlen(warning));
+			ipptr->tlen = ntohs(14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + strlen(warning));
 
 			ipptr->crc = 0; //ip checksum
 			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
