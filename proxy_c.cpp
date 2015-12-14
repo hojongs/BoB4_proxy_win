@@ -294,7 +294,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			tcpptr->ack = ntohl(ntohl(temp4) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 			//tcpptr->flags = 0x18;
 
-			char warning[65536]=
+			char warning[65536] =
 				"HTTP/1.0 200 OK\r\n"\
 				"Content-type: text/html\r\n"\
 				"\r\n"\
@@ -311,8 +311,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				"}"\
 				"</style>"\
 				"</head>"\
-				"<body style=\"background - color:black\">"\
-				"<div id=\"pp\" style=\"margin - top:50 % ; text - align:center\">"\
+				"<body style=\"background-color:black\">"\
+				"<div id=\"pp\" style=\"margin-top:50%;text-align:center\">"\
 				"<p>Warning</p>"\
 				"<p>Malware Site</p>"\
 				"</div>"\
