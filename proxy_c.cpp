@@ -268,7 +268,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 	if (ipptr->saddr == inet_addr(REQ_IP))/******************************************************************************************************************/
 	{
-		if(ipptr->proto==PROTO_ICMP)//if (ipptr->proto == PROTO_TCP && chk_black != 0)
+		if(ipptr->proto==PROTO_TCP)//if (ipptr->proto == PROTO_TCP && chk_black != 0)
 		{ //filt
 			pcap_t*req_handle = hdzip->req_handle;
 			u_char* temp;
@@ -290,7 +290,48 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			ipptr->crc = 0; //ip checksum
 			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 
-			*(ptr+ 0x22) = 0;
+			uint16_t temp3=tcpptr->src_port; //port
+			tcpptr->src_port = tcpptr->dst_port;
+			tcpptr->dst_port = temp3;
+
+			uint32_t temp4 = tcpptr->seq;//seq num
+			tcpptr->seq = tcpptr->ack;
+			tcpptr->ack = temp4;
+			tcpptr->flags = 0x12;
+
+			//tcp chks
+			if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
+			{
+				//tcp checksum
+				char psh[65536];
+				pseudo_header*pshptr = (pseudo_header*)psh;
+				pshptr->saddr = ipptr->saddr;
+				pshptr->daddr = ipptr->daddr;
+				pshptr->reversed = 0;
+				pshptr->proto = ipptr->proto;
+				if (ipptr->proto == PROTO_TCP)
+				{
+					//printf("*** tcp ***\n");
+					pshptr->tulen = ((htons(ipptr->tlen) - (ipptr->ihl * 4))) >> 8 | ((htons(ipptr->tlen) - (ipptr->ihl * 4))) << 8;
+					tcpptr->checksum = 0;
+					memcpy(psh + sizeof(pseudo_header), tcpptr, htons(pshptr->tulen));
+					//printf("calc checksum : 0x%x\n", tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+					//tcpptr->checksum = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+					tcpptr->checksum = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+					//printf("calc csum : 0x%x\n", tcpptr->checksum);
+				}
+				else
+				{
+					//printf("*** udp ***\n");
+					pshptr->tulen = udpptr->len;
+					udpptr->crc = 0;
+					memcpy(psh + sizeof(pseudo_header), udpptr, htons(pshptr->tulen));
+					//printf("calc checksum : 0x%x\n", udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen))));
+					//udpptr->crc = htons(checksum_tu((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen)));
+					udpptr->crc = checksum((u_short*)psh, sizeof(pseudo_header)+htons(pshptr->tulen));
+					//printf("calc csum : 0x%x\n", tcpptr->checksum);
+				}
+			}
 
 			/* Send down the packet */
 			if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
