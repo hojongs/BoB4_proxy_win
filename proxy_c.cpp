@@ -268,7 +268,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 	if (ipptr->saddr == inet_addr(REQ_IP))/******************************************************************************************************************/
 	{
-		if(ipptr->proto==PROTO_TCP && tcpptr->dst_port == ntohs(80) && tcpptr->flags==0x18/*GET*/)//if (ipptr->proto == PROTO_TCP && chk_black != 0)
+		//if(ipptr->proto==PROTO_TCP && tcpptr->dst_port == ntohs(80) && tcpptr->flags==0x18/*GET*/)//
+		if (chk_black != 0)
 		{ //filt
 			pcap_t*req_handle = hdzip->req_handle;
 			u_char* temp;

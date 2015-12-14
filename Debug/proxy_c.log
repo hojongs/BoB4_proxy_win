@@ -1,4 +1,4 @@
-﻿Build started 2015-12-14 오전 10:26:47.
+﻿Build started 2015-12-14 오전 10:30:49.
      1>Project "C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\proxy_c\proxy_c.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D HAVE_REMOTE /D WPCAP /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\proxy_c.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt proxy_c.cpp
@@ -6,14 +6,14 @@
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(198): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(228): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(356) : see declaration of 'sprintf'
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(486): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(777): warning C4101: 'alldevsp' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(780): warning C4101: 'devs' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(777): warning C4101: 'device' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(781): warning C4101: 'n' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(780): warning C4101: 'devname' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(789): warning C4101: 'dbaddr' : unreferenced local variable
-     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(774): warning C4101: 'adhandle' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(487): warning C4244: '=' : conversion from 'uint16_t' to 'uint8_t', possible loss of data
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(778): warning C4101: 'alldevsp' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(781): warning C4101: 'devs' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(778): warning C4101: 'device' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(782): warning C4101: 'n' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(781): warning C4101: 'devname' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(790): warning C4101: 'dbaddr' : unreferenced local variable
+     1>c:\users\ssaemo_2\documents\visual studio 2013\projects\proxy_c\proxy_c\proxy_c.cpp(775): warning C4101: 'adhandle' : unreferenced local variable
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\Debug\proxy_c.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\Debug\proxy_c.pdb" /SUBSYSTEM:CONSOLE,"5.01" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\Debug\proxy_c.lib" /MACHINE:X86 Debug\proxy_c.obj
          Debug\stdafx.obj
@@ -23,4 +23,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.91
+Time Elapsed 00:00:00.72
