@@ -167,7 +167,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 	tcphdr*tcpptr=NULL;
 	udphdr*udpptr=NULL;
 	char*data;
-	char url[65536]{ 0 };
+	char url[65536]={ 0 };
 	int chk_black = 0;
 
 	int temp = 0;
@@ -195,10 +195,11 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 		tcpptr = (tcphdr*)(ptr + sizeof(ethhdr)+ipptr->ihl * 4);
 		data = ptr + sizeof(ethhdr)+ipptr->ihl * 4 + tcpptr->data_offset * 4;
+
 		for (int i = 0; i < header->caplen; i++)
 		{
 			if (buffer[i] == 0x48 && buffer[i + 1] == 0x6f && buffer[i + 2] == 0x73 && buffer[i + 3] == 0x74 && buffer[i + 4] == 0x3a && buffer[i + 5] == 0x20)
-			{ //daddr
+			{ //Host:
 				for (int j = i + 6;; j++)
 				{
 					//temp = buffer[j];
@@ -207,7 +208,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 						temp = 1;
 						break;
 					}
-					url[j - (i + 6)] = ptr[j];
+					url[j - (i + 6)] = buffer[j]; //url[0]~url[n] input
 				}
 				int tmp = 0, tmp2 = 0;
 				while (url[tmp])
@@ -222,7 +223,6 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 						temparray[tmp2] = url[tmp];
 						tmp++;
 						tmp2++;
-
 					}
 				}
 				sprintf(query, "select url from blacklist where url like '%s%%'", temparray);
@@ -263,9 +263,6 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 		printf("type : 0x%x\n", ipptr->proto);
 	}
 
-	//todo
-	//filtering
-
 	if (ipptr->saddr == inet_addr(REQ_IP))/******************************************************************************************************************/
 	{
 		//if(ipptr->proto==PROTO_TCP && tcpptr->dst_port == ntohs(80) && tcpptr->flags==0x18/*GET*/)//
@@ -301,9 +298,27 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				"HTTP/1.0 200 OK\r\n"\
 				"Content-type: text/html\r\n"\
 				"\r\n"\
-				"<html><script>\n"\
-				"location.replace(\"http://192.168.32.184/block/block.html\");\n"\
-				"</script></html>\n";
+				"<html>"\
+				"<head>"\
+				"<title> Malware Site Detected </title>"\
+				"<style>"\
+				"p{"\
+				"font-size:30px;"\
+				"text-align:center;"\
+				"color:red;"\
+				"font-weight:bold;"\
+				"margin-bottom:2%;"\
+				"}"\
+				"</style>"\
+				"</head>"\
+				"<body style=\"background - color:black\">"\
+				"<div id=\"pp\" style=\"margin - top:50 % ; text - align:center\">"\
+				"<p>Warning</p>"\
+				"<p>Malware Site</p>"\
+				"</div>"\
+				"</body>"\
+				"</html>"
+				;
 
 			memcpy(data, 
 				warning,
