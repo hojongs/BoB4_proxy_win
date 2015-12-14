@@ -1,4 +1,4 @@
-﻿Build started 2015-12-14 오전 10:13:48.
+﻿Build started 2015-12-14 오전 10:16:51.
      1>Project "C:\Users\ssaemo_2\documents\visual studio 2013\Projects\proxy_c\proxy_c\proxy_c.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D HAVE_REMOTE /D WPCAP /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\proxy_c.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt proxy_c.cpp
@@ -23,4 +23,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.02
+Time Elapsed 00:00:00.75

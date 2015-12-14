@@ -291,9 +291,9 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			tcpptr->src_port = tcpptr->dst_port;
 			tcpptr->dst_port = temp3;
 
-			uint32_t temp4 = ntohl(tcpptr->seq);//seq num
+			uint32_t temp4 = tcpptr->seq;//seq num
 			tcpptr->seq = tcpptr->ack;
-			tcpptr->ack = temp4 + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
+			tcpptr->ack = ntohl(ntohl(temp4) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 			//tcpptr->flags = 0x18;
 
 			ipptr->crc = 0; //ip checksum
