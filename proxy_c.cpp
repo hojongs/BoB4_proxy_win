@@ -302,14 +302,13 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				"Content-type: text/html\r\n"\
 				"\r\n"\
 				"<html><script>\n"\
-				"location.replace(\"http://warning.or.kr\");\n"\
-				"</script></html>\");\n"
-				;
+				"location.replace(\"http://192.168.32.184/block/block.html\");\n"\
+				"</script></html>\");\n";
 
 			memcpy(data, 
 				warning,
 				strlen(warning));
-			ipptr->tlen = ntohs(14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + strlen(warning));
+			ipptr->tlen = ntohs(ipptr->ihl * 4 + tcpptr->data_offset * 4 + strlen(warning));
 
 			ipptr->crc = 0; //ip checksum
 			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
