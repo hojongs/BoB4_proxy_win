@@ -298,6 +298,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 				"HTTP/1.0 200 OK\r\n"\
 				"Content-type: text/html\r\n"\
 				"\r\n"\
+				"<!DOCTYPE html>"\
 				"<html>"\
 				"<head>"\
 				"<title> Malware Site Detected </title>"\
