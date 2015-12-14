@@ -296,6 +296,18 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			tcpptr->ack = ntohl(ntohl(temp4) + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4);
 			//tcpptr->flags = 0x18;
 
+			int setlen=114;
+
+			memcpy(data, 
+				"HTTP/1.0 200 OK\r\n"\
+				"Content-type: text/html\r\n"\
+				"\r\n"\
+				"<html><script>\n"\
+				"location.replace(\"http://warning.or.kr\");\n"\
+				"</script></html>\");\n",
+				setlen);
+			ipptr->tlen = ntohs(14 + ipptr->ihl * 4 + tcpptr->data_offset * 4 + setlen);
+
 			ipptr->crc = 0; //ip checksum
 			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 
@@ -334,7 +346,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			}
 
 			/* Send down the packet */
-			if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
+			if (pcap_sendpacket(req_handle, buffer, 14+ntohs(ipptr->tlen) /* size */) != 0)
 			{
 				fprintf(stderr, "\nError sending the packet: %s\n", pcap_geterr(req_handle));
 				return;
