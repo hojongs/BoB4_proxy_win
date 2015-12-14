@@ -290,6 +290,8 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			ipptr->crc = 0; //ip checksum
 			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 
+			*(ptr+ 0x22) = 0;
+
 			/* Send down the packet */
 			if (pcap_sendpacket(req_handle, buffer, header->len /* size */) != 0)
 			{
