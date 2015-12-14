@@ -268,7 +268,7 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
 	if (ipptr->saddr == inet_addr(REQ_IP))/******************************************************************************************************************/
 	{
-		if(ipptr->proto==PROTO_TCP && tcpptr->dst_port != ntohs(443) && tcpptr->flags==0x2)//if (ipptr->proto == PROTO_TCP && chk_black != 0)
+		if(ipptr->proto==PROTO_TCP && tcpptr->dst_port == ntohs(80) && tcpptr->flags==0x18/*GET*/)//if (ipptr->proto == PROTO_TCP && chk_black != 0)
 		{ //filt
 			pcap_t*req_handle = hdzip->req_handle;
 			u_char* temp;
@@ -287,17 +287,17 @@ void req_handling(u_char *args, const struct pcap_pkthdr *header, const u_char *
 			ipptr->saddr = ipptr->daddr;
 			ipptr->daddr = temp2;
 
-			ipptr->crc = 0; //ip checksum
-			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
-
 			uint16_t temp3=tcpptr->src_port; //port
 			tcpptr->src_port = tcpptr->dst_port;
 			tcpptr->dst_port = temp3;
 
-			uint32_t temp4 = tcpptr->seq;//seq num
+			uint32_t temp4 = ntohl(tcpptr->seq);//seq num
 			tcpptr->seq = tcpptr->ack;
-			tcpptr->ack = temp4;
-			tcpptr->flags = 0x12;
+			tcpptr->ack = temp4 + ntohs(ipptr->tlen) - ipptr->ihl * 4 - tcpptr->data_offset * 4;
+			//tcpptr->flags = 0x18;
+
+			ipptr->crc = 0; //ip checksum
+			ipptr->crc = checksum((u_short*)ipptr, ipptr->ihl * 4);
 
 			//tcp chks
 			if (ipptr->proto == PROTO_TCP || ipptr->proto == PROTO_UDP)
